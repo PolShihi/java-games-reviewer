@@ -1,0 +1,1 @@
+https://sonarcloud.io/project/configuration?id=PolShihi_java-games-reviewer
