@@ -55,14 +55,15 @@ CREATE TABLE system_requirement_types (
 );
 
 CREATE TABLE system_requirements (
+    id SERIAL PRIMARY KEY,
     game_id INT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
-    system_requirements_type_id INT NOT NULL REFERENCES system_requirement_types(id) ON DELETE CASCADE,
+    system_requirement_type_id INT NOT NULL REFERENCES system_requirement_types(id) ON DELETE CASCADE,
     storage_gb INT NOT NULL,
     ram_gb INT NOT NULL,
     cpu_ghz NUMERIC(3, 1),
     gpu_tflops NUMERIC(4, 2),
     vram_gb INT,
-    PRIMARY KEY (game_id, system_requirements_type_id)
+    CONSTRAINT uq_game_requirement_type UNIQUE (game_id, system_requirement_type_id)
 );
 
 CREATE INDEX idx_games_developer_id ON games(developer_id);
@@ -73,6 +74,8 @@ CREATE INDEX idx_games_release_year ON games(release_year);
 CREATE INDEX idx_reviews_game_id ON reviews(game_id);
 CREATE INDEX idx_reviews_media_outlet_id ON reviews(media_outlet_id);
 CREATE INDEX idx_reviews_score ON reviews(score);
+
+CREATE INDEX idx_system_requirements_game_id ON system_requirements(game_id);
 
 
 
@@ -118,7 +121,7 @@ INSERT INTO games_genres (game_id, genre_id) VALUES
 ((SELECT id FROM games WHERE title = 'Elden Ring'), (SELECT id FROM genres WHERE name = 'RPG')),
 ((SELECT id FROM games WHERE title = 'Elden Ring'), (SELECT id FROM genres WHERE name = 'Action'));
 
-INSERT INTO system_requirements (game_id, system_requirements_type_id, storage_gb, ram_gb, cpu_ghz, gpu_tflops, vram_gb) VALUES
+INSERT INTO system_requirements (game_id, system_requirement_type_id, storage_gb, ram_gb, cpu_ghz, gpu_tflops, vram_gb) VALUES
 ((SELECT id FROM games WHERE title = 'The Witcher 3: Wild Hunt'), (SELECT id FROM system_requirement_types WHERE name = 'medium'), 35, 8, 3.4, 4.0, 2),
 ((SELECT id FROM games WHERE title = 'Grand Theft Auto V'), (SELECT id FROM system_requirement_types WHERE name = 'medium'), 72, 8, 3.2, 3.0, 2),
 ((SELECT id FROM games WHERE title = 'Elden Ring'), (SELECT id FROM system_requirement_types WHERE name = 'medium'), 60, 12, 3.6, 9.0, 6);
