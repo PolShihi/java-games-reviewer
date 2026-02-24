@@ -49,15 +49,21 @@ CREATE TABLE reviews (
     CONSTRAINT uq_review_game_outlet UNIQUE (game_id, media_outlet_id)
 );
 
-CREATE TABLE system_requirements (
-    game_id INT PRIMARY KEY REFERENCES games(id) ON DELETE CASCADE,
-    rec_storage_gb INT NOT NULL,
-    rec_ram_gb INT NOT NULL,
-    rec_cpu_ghz NUMERIC(3, 1),
-    rec_gpu_tflops NUMERIC(4, 2),
-    rec_vram_gb INT
+CREATE TABLE system_requirement_types (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(20) NOT NULL UNIQUE
 );
--- Префикс rec_ для пометки что это рекомендованная характеристика и возможного добавления полей для минимальных требований или для другого
+
+CREATE TABLE system_requirements (
+    game_id INT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    system_requirements_type_id INT NOT NULL REFERENCES system_requirement_types(id) ON DELETE CASCADE,
+    storage_gb INT NOT NULL,
+    ram_gb INT NOT NULL,
+    cpu_ghz NUMERIC(3, 1),
+    gpu_tflops NUMERIC(4, 2),
+    vram_gb INT,
+    PRIMARY KEY (game_id, system_requirements_type_id)
+);
 
 CREATE INDEX idx_games_developer_id ON games(developer_id);
 CREATE INDEX idx_games_publisher_id ON games(publisher_id);
@@ -79,6 +85,11 @@ INSERT INTO company_types (name) VALUES
 
 INSERT INTO genres (name) VALUES 
 ('RPG'), ('Action'), ('Shooter'), ('Strategy'), ('Adventure');
+
+INSERT INTO system_requirement_types (name) VALUES 
+('low'), 
+('medium'), 
+('high');
 
 INSERT INTO production_companies (name, ceo, founded_year, company_type_id) VALUES
 ('CD Projekt Red', 'Adam Kiciński', 2002, (SELECT id FROM company_types WHERE name = 'Hybrid' LIMIT 1)),
@@ -107,10 +118,10 @@ INSERT INTO games_genres (game_id, genre_id) VALUES
 ((SELECT id FROM games WHERE title = 'Elden Ring'), (SELECT id FROM genres WHERE name = 'RPG')),
 ((SELECT id FROM games WHERE title = 'Elden Ring'), (SELECT id FROM genres WHERE name = 'Action'));
 
-INSERT INTO system_requirements (game_id, rec_storage_gb, rec_ram_gb, rec_cpu_ghz, rec_gpu_tflops, rec_vram_gb) VALUES
-((SELECT id FROM games WHERE title = 'The Witcher 3: Wild Hunt'), 35, 8, 3.4, 4.0, 2),
-((SELECT id FROM games WHERE title = 'Grand Theft Auto V'), 72, 8, 3.2, 3.0, 2),
-((SELECT id FROM games WHERE title = 'Elden Ring'), 60, 12, 3.6, 9.0, 6);
+INSERT INTO system_requirements (game_id, system_requirements_type_id, storage_gb, ram_gb, cpu_ghz, gpu_tflops, vram_gb) VALUES
+((SELECT id FROM games WHERE title = 'The Witcher 3: Wild Hunt'), (SELECT id FROM system_requirement_types WHERE name = 'medium'), 35, 8, 3.4, 4.0, 2),
+((SELECT id FROM games WHERE title = 'Grand Theft Auto V'), (SELECT id FROM system_requirement_types WHERE name = 'medium'), 72, 8, 3.2, 3.0, 2),
+((SELECT id FROM games WHERE title = 'Elden Ring'), (SELECT id FROM system_requirement_types WHERE name = 'medium'), 60, 12, 3.6, 9.0, 6);
 
 INSERT INTO reviews (game_id, media_outlet_id, score, summary) VALUES
 ((SELECT id FROM games WHERE title = 'The Witcher 3: Wild Hunt'), (SELECT id FROM media_outlets WHERE name = 'IGN'), 93, 'An amazing RPG experience.'),
