@@ -14,5 +14,7 @@ buildNumber.properties
 *.log
 application-local.properties
 
+src/main/resources/application.properties
+
 .DS_Store
 Thumbs.db

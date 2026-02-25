@@ -1,0 +1,10 @@
+app.profile=dev
+
+# 1. Скопируйте этот файл в application.properties
+# 2. Замените YOUR_PASSWORD_HERE на ваш реальный пароль PostgreSQL
+# 3. При необходимости измените host, port, database name
+
+db.url=jdbc:postgresql://localhost:5432/games_reviewer_db
+db.username=postgres
+db.password=YOUR_PASSWORD_HERE
+db.driver=org.postgresql.Driver
