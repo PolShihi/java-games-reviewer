@@ -10,4 +10,8 @@ public interface IGameDAO {
     int create(Game game);
     void update(Game game);
     void delete(int id);
+    
+    void addGenreToGame(int gameId, int genreId);
+    void removeGenreFromGame(int gameId, int genreId);
+    void updateGameGenres(int gameId, List<Integer> genreIds);
 }
