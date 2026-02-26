@@ -20,4 +20,6 @@ https://sonarcloud.io/project/configuration?id=PolShihi_java-games-reviewer
 
 Создание всех DAO для CRUD операций и требуемых usecases - план: 5.1 час - факт: 3.9 час
 
-Создание Service слоя - план: 0.7 час
+Создание Service слоя - план: 0.7 час - факт: 0.5 час
+
+Создание UI слоя - план: 3.8 час
