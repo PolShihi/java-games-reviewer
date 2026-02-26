@@ -15,13 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class GameDAO {
+public class GameDAO implements IGameDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(GameDAO.class);
 
     @Autowired
     private DataSource dataSource;
 
+    @Override
     public List<Game> findAll() {
         String sql = """
                 SELECT g.id, g.title, g.release_year, g.description,
@@ -70,5 +71,25 @@ public class GameDAO {
             rs.getString("developer_name"),
             rs.getString("publisher_name")
         );
+    }
+    
+    @Override
+    public Game findById(int id) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+    
+    @Override
+    public int create(Game game) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+    
+    @Override
+    public void update(Game game) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+    
+    @Override
+    public void delete(int id) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }

@@ -1,6 +1,6 @@
 package com.project.gamesreviewer.service;
 
-import com.project.gamesreviewer.dao.GameDAO;
+import com.project.gamesreviewer.dao.IGameDAO;
 import com.project.gamesreviewer.model.Game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ public class GameService {
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
     
     @Autowired
-    private GameDAO gameDAO;
+    private IGameDAO gameDAO;
     
     public List<Game> getAllGames() {
         logger.debug("Fetching all games from service layer");
