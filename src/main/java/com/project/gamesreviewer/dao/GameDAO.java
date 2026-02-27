@@ -2,6 +2,7 @@ package com.project.gamesreviewer.dao;
 
 import com.project.gamesreviewer.exception.DatabaseException;
 import com.project.gamesreviewer.exception.DuplicateEntryException;
+import com.project.gamesreviewer.exception.ForeignKeyViolationException;
 import com.project.gamesreviewer.model.Game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +61,16 @@ public class GameDAO implements IGameDAO {
     }
 
     private Game mapResultSetToGame(ResultSet rs) throws SQLException {
+        Integer devId = (Integer) rs.getObject("developer_id");
+        Integer pubId = (Integer) rs.getObject("publisher_id");
+        
         return new Game(
             rs.getInt("id"),
             rs.getString("title"),
             rs.getInt("release_year"),
             rs.getString("description"),
-            rs.getInt("developer_id"),
-            rs.getInt("publisher_id"),
+            devId,
+            pubId,
             rs.getString("developer_name"),
             rs.getString("publisher_name")
         );
@@ -118,8 +122,18 @@ public class GameDAO implements IGameDAO {
             stmt.setString(1, game.title());
             stmt.setInt(2, game.releaseYear());
             stmt.setString(3, game.description());
-            stmt.setInt(4, game.developerId());
-            stmt.setInt(5, game.publisherId());
+            
+            if (game.developerId() != null) {
+                stmt.setInt(4, game.developerId());
+            } else {
+                stmt.setNull(4, java.sql.Types.INTEGER);
+            }
+            
+            if (game.publisherId() != null) {
+                stmt.setInt(5, game.publisherId());
+            } else {
+                stmt.setNull(5, java.sql.Types.INTEGER);
+            }
 
             int affectedRows = stmt.executeUpdate();
 
@@ -138,10 +152,18 @@ public class GameDAO implements IGameDAO {
             }
 
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
-                logger.warn("Duplicate game: title={}, year={}", game.title(), game.releaseYear());
-                throw new DuplicateEntryException(
-                    "Игра с таким названием и годом выпуска уже существует", e);
+            String sqlState = e.getSQLState();
+            if (sqlState != null) {
+                if (sqlState.equals("23505")) {
+                    logger.warn("Duplicate game: title={}, year={}", game.title(), game.releaseYear());
+                    throw new DuplicateEntryException(
+                        "Игра с таким названием и годом выпуска уже существует", e);
+                } else if (sqlState.equals("23503")) {
+                    logger.warn("Foreign key violation in game creation: developer_id={}, publisher_id={}", 
+                        game.developerId(), game.publisherId());
+                    throw new ForeignKeyViolationException(
+                        "Указан несуществующий ID разработчика или издателя", e);
+                }
             }
             logger.error("Error creating game", e);
             throw new DatabaseException("Database error while creating game", e);
@@ -160,16 +182,40 @@ public class GameDAO implements IGameDAO {
             stmt.setString(1, game.title());
             stmt.setInt(2, game.releaseYear());
             stmt.setString(3, game.description());
-            stmt.setInt(4, game.developerId());
-            stmt.setInt(5, game.publisherId());
+            
+            if (game.developerId() != null) {
+                stmt.setInt(4, game.developerId());
+            } else {
+                stmt.setNull(4, java.sql.Types.INTEGER);
+            }
+            
+            if (game.publisherId() != null) {
+                stmt.setInt(5, game.publisherId());
+            } else {
+                stmt.setNull(5, java.sql.Types.INTEGER);
+            }
+            
             stmt.setInt(6, game.id());
 
             int affectedRows = stmt.executeUpdate();
             logger.info("Updated game id: {}, rows affected: {}", game.id(), affectedRows);
 
         } catch (SQLException e) {
+            String sqlState = e.getSQLState();
+            if (sqlState != null) {
+                if (sqlState.equals("23505")) {
+                    logger.warn("Duplicate game: title={}, year={}", game.title(), game.releaseYear());
+                    throw new DuplicateEntryException(
+                        "Игра с таким названием и годом выпуска уже существует", e);
+                } else if (sqlState.equals("23503")) {
+                    logger.warn("Foreign key violation in game update: developer_id={}, publisher_id={}", 
+                        game.developerId(), game.publisherId());
+                    throw new ForeignKeyViolationException(
+                        "Указан несуществующий ID разработчика или издателя", e);
+                }
+            }
             logger.error("Error updating game id: {}", game.id(), e);
-            throw new RuntimeException("Database error while updating game", e);
+            throw new DatabaseException("Database error while updating game", e);
         }
     }
     

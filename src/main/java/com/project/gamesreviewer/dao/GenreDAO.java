@@ -141,9 +141,12 @@ public class GenreDAO implements IGenreDAO {
             }
 
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
-                logger.warn("Duplicate genre: name={}", genre.name());
-                throw new DuplicateEntryException("Жанр с таким названием уже существует", e);
+            String sqlState = e.getSQLState();
+            if (sqlState != null) {
+                if (sqlState.equals("23505")) {
+                    logger.warn("Duplicate genre: name={}", genre.name());
+                    throw new DuplicateEntryException("Жанр с таким названием уже существует", e);
+                }
             }
             logger.error("Error creating genre", e);
             throw new DatabaseException("Database error while creating genre", e);

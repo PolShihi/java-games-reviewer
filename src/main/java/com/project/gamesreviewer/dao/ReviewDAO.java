@@ -2,6 +2,7 @@ package com.project.gamesreviewer.dao;
 
 import com.project.gamesreviewer.exception.DatabaseException;
 import com.project.gamesreviewer.exception.DuplicateEntryException;
+import com.project.gamesreviewer.exception.ForeignKeyViolationException;
 import com.project.gamesreviewer.model.Review;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,9 +92,11 @@ public class ReviewDAO implements IReviewDAO {
     public List<Review> findByGameId(int gameId) {
         String sql = """
             SELECT r.id, r.game_id, r.media_outlet_id, r.score, r.summary,
-                   mo.name AS media_outlet_name
+                   mo.name AS media_outlet_name,
+                   g.title AS game_title
             FROM reviews r
             JOIN media_outlets mo ON r.media_outlet_id = mo.id
+            JOIN games g ON r.game_id = g.id
             WHERE r.game_id = ?
             ORDER BY r.score DESC
             """;
@@ -108,14 +111,7 @@ public class ReviewDAO implements IReviewDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    reviews.add(new Review(
-                        rs.getInt("id"),
-                        rs.getInt("game_id"),
-                        rs.getInt("media_outlet_id"),
-                        rs.getInt("score"),
-                        rs.getString("summary"),
-                        rs.getString("media_outlet_name")
-                    ));
+                    reviews.add(mapResultSetToReview(rs));
                 }
             }
 
@@ -192,11 +188,19 @@ public class ReviewDAO implements IReviewDAO {
             }
 
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
-                logger.warn("Duplicate review: game_id={}, outlet_id={}", 
-                    review.gameId(), review.mediaOutletId());
-                throw new DuplicateEntryException(
-                    "Обзор от этого издания на данную игру уже существует", e);
+            String sqlState = e.getSQLState();
+            if (sqlState != null) {
+                if (sqlState.equals("23505")) {
+                    logger.warn("Duplicate review: game_id={}, outlet_id={}", 
+                        review.gameId(), review.mediaOutletId());
+                    throw new DuplicateEntryException(
+                        "Обзор от этого издания на данную игру уже существует", e);
+                } else if (sqlState.equals("23503")) {
+                    logger.warn("Foreign key violation in review creation: game_id={}, outlet_id={}", 
+                        review.gameId(), review.mediaOutletId());
+                    throw new ForeignKeyViolationException(
+                        "Указан несуществующий ID игры или издания", e);
+                }
             }
             logger.error("Error creating review", e);
             throw new DatabaseException("Database error while creating review", e);

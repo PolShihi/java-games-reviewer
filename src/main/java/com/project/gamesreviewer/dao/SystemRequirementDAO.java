@@ -2,6 +2,7 @@ package com.project.gamesreviewer.dao;
 
 import com.project.gamesreviewer.exception.DatabaseException;
 import com.project.gamesreviewer.exception.DuplicateEntryException;
+import com.project.gamesreviewer.exception.ForeignKeyViolationException;
 import com.project.gamesreviewer.model.SystemRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,11 +176,19 @@ public class SystemRequirementDAO implements ISystemRequirementDAO {
             }
 
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
-                logger.warn("Duplicate system requirement: game_id={}, type_id={}", 
-                    requirement.gameId(), requirement.systemRequirementTypeId());
-                throw new DuplicateEntryException(
-                    "Системное требование с таким профилем уже существует для этой игры", e);
+            String sqlState = e.getSQLState();
+            if (sqlState != null) {
+                if (sqlState.equals("23505")) {
+                    logger.warn("Duplicate system requirement: game_id={}, type_id={}", 
+                        requirement.gameId(), requirement.systemRequirementTypeId());
+                    throw new DuplicateEntryException(
+                        "Системное требование с таким профилем уже существует для этой игры", e);
+                } else if (sqlState.equals("23503")) {
+                    logger.warn("Foreign key violation in system requirement creation: game_id={}, type_id={}", 
+                        requirement.gameId(), requirement.systemRequirementTypeId());
+                    throw new ForeignKeyViolationException(
+                        "Указан несуществующий ID игры или типа требования", e);
+                }
             }
             logger.error("Error creating system requirement", e);
             throw new DatabaseException("Database error while creating system requirement", e);

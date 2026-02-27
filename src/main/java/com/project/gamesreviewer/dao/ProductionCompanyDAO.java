@@ -2,6 +2,7 @@ package com.project.gamesreviewer.dao;
 
 import com.project.gamesreviewer.exception.DatabaseException;
 import com.project.gamesreviewer.exception.DuplicateEntryException;
+import com.project.gamesreviewer.exception.ForeignKeyViolationException;
 import com.project.gamesreviewer.model.ProductionCompany;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,9 +115,16 @@ public class ProductionCompanyDAO implements IProductionCompanyDAO {
             }
 
         } catch (SQLException e) {
-            if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
-                logger.warn("Duplicate company: name={}", company.name());
-                throw new DuplicateEntryException("Компания с таким названием уже существует", e);
+            String sqlState = e.getSQLState();
+            if (sqlState != null) {
+                if (sqlState.equals("23505")) {
+                    logger.warn("Duplicate company: name={}", company.name());
+                    throw new DuplicateEntryException("Компания с таким названием уже существует", e);
+                } else if (sqlState.equals("23503")) {
+                    logger.warn("Foreign key violation in company creation: type_id={}", company.companyTypeId());
+                    throw new ForeignKeyViolationException(
+                        "Указан несуществующий тип компании", e);
+                }
             }
             logger.error("Error creating production company", e);
             throw new DatabaseException("Database error while creating production company", e);

@@ -7,8 +7,8 @@ public record Game(
     String title,
     int releaseYear,
     String description,
-    int developerId,
-    int publisherId,
+    Integer developerId,
+    Integer publisherId,
     String developerName,
     String publisherName,
     List<String> genres,
@@ -24,13 +24,13 @@ public record Game(
     }
     
     public Game(int id, String title, int releaseYear, String description,
-                int developerId, int publisherId) {
+                Integer developerId, Integer publisherId) {
         this(id, title, releaseYear, description, developerId, publisherId,
              null, null, null, null);
     }
     
     public Game(int id, String title, int releaseYear, String description,
-                int developerId, int publisherId, 
+                Integer developerId, Integer publisherId, 
                 String developerName, String publisherName) {
         this(id, title, releaseYear, description, developerId, publisherId,
              developerName, publisherName, null, null);
@@ -64,7 +64,7 @@ public record Game(
     public String toString() {
         return String.format("Game{id=%d, title='%s', year=%d, developer='%s', publisher='%s'}",
                 id, title, releaseYear,
-                developerName != null ? developerName : "ID:" + developerId,
-                publisherName != null ? publisherName : "ID:" + publisherId);
+                developerName != null ? developerName : (developerId != null ? "ID:" + developerId : "N/A"),
+                publisherName != null ? publisherName : (publisherId != null ? "ID:" + publisherId : "N/A"));
     }
 }

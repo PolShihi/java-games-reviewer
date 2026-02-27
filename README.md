@@ -22,4 +22,4 @@ https://sonarcloud.io/project/configuration?id=PolShihi_java-games-reviewer
 
 Создание Service слоя - план: 0.7 час - факт: 0.5 час
 
-Создание UI слоя - план: 3.8 час
+Создание UI слоя - план: 3.8 час - факт: 3.5 час
