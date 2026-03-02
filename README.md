@@ -26,4 +26,6 @@ https://sonarcloud.io/project/configuration?id=PolShihi_java-games-reviewer
 
 Инициализация Spring Boot проекта, файл конфигурации - план: 1.2 час - факт: 1.1 час
 
-Создание Entity слоя - план: 1.5 час
+Создание Entity слоя - план: 1.5 час - факт: 1.4 час
+
+Создание Repositoty слоя - план: 2.1 час
