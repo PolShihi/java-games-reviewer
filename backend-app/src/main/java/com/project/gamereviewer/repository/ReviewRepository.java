@@ -1,0 +1,20 @@
+package com.project.gamereviewer.repository;
+
+import com.project.gamereviewer.entity.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface ReviewRepository extends JpaRepository<Review, Integer> {
+    
+    List<Review> findByGameId(Integer gameId);
+    
+    Optional<Review> findByGameIdAndMediaOutletId(Integer gameId, Integer mediaOutletId);
+    
+    boolean existsByGameIdAndMediaOutletId(Integer gameId, Integer mediaOutletId);
+    
+    void deleteByGameId(Integer gameId);
+}
