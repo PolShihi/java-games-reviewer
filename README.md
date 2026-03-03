@@ -26,4 +26,5 @@ https://sonarcloud.io/project/configuration?id=PolShihi_java-games-reviewer
 | Создание Entity слоя | 1.5 | 1.4 |
 | Создание Repository слоя | 2.1 | 1.1 |
 | Создание DTO классов и mapper-ов | 2.4 | 2.7 |
-| Создание Service слоя | 2.9 |  |
+| Создание Service слоя | 2.9 | 2.6 |
+| Создание Controller слоя | 3.8 |  |

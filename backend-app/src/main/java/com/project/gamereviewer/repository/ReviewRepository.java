@@ -1,6 +1,8 @@
 package com.project.gamereviewer.repository;
 
 import com.project.gamereviewer.entity.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +13,8 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
     
     List<Review> findByGameId(Integer gameId);
+    
+    Page<Review> findByGameId(Integer gameId, Pageable pageable);
     
     Optional<Review> findByGameIdAndMediaOutletId(Integer gameId, Integer mediaOutletId);
     
