@@ -1,32 +1,32 @@
 CREATE TABLE company_types (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
+    name VARCHAR2(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE production_companies (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR2(100) NOT NULL UNIQUE,
     founded_year INT CHECK (founded_year >= 1900),
-    website_url VARCHAR(255),
-    ceo VARCHAR(100),
+    website_url VARCHAR2(255),
+    ceo VARCHAR2(100),
     company_type_id INT REFERENCES company_types(id) ON DELETE SET NULL
 );
 
 CREATE TABLE media_outlets (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    website_url VARCHAR(255),
+    name VARCHAR2(100) NOT NULL UNIQUE,
+    website_url VARCHAR2(255),
     founded_year INT CHECK (founded_year >= 1900)
 );
 
 CREATE TABLE genres (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
+    name VARCHAR2(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(150) NOT NULL,
+    title VARCHAR2(150) NOT NULL,
     release_year INT CHECK (release_year >= 1950),
     description TEXT,
     developer_id INT REFERENCES production_companies(id) ON DELETE SET NULL,
@@ -51,7 +51,7 @@ CREATE TABLE reviews (
 
 CREATE TABLE system_requirement_types (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(20) NOT NULL UNIQUE
+    name VARCHAR2(20) NOT NULL UNIQUE
 );
 
 CREATE TABLE system_requirements (

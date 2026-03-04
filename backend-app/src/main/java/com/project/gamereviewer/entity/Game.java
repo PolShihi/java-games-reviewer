@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Formula;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,4 +54,7 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<SystemRequirement> systemRequirements = new HashSet<>();
+    
+    @Formula("(SELECT COALESCE(AVG(r.score), 0.0) FROM reviews r WHERE r.game_id = id)")
+    private Double averageRating;
 }

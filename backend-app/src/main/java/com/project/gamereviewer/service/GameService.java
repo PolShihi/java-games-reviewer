@@ -14,9 +14,11 @@ import com.project.gamereviewer.mapper.GameMapper;
 import com.project.gamereviewer.repository.GameRepository;
 import com.project.gamereviewer.repository.GenreRepository;
 import com.project.gamereviewer.repository.ProductionCompanyRepository;
+import com.project.gamereviewer.specification.GameSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,40 +37,21 @@ public class GameService {
     
     public Page<GameListResponse> getAllGames(Pageable pageable) {
         return gameRepository.findAll(pageable)
-            .map(game -> {
-                GameListResponse response = gameMapper.toListResponse(game);
-                Double rating = gameRepository.calculateAverageRating(game.getId());
-                return new GameListResponse(
-                    response.id(),
-                    response.title(),
-                    response.releaseYear(),
-                    response.developerName(),
-                    response.publisherName(),
-                    response.genreNames(),
-                    rating
-                );
-            });
+            .map(gameMapper::toListResponse);
+    }
+    
+    public Page<GameListResponse> filterGames(GameFilterDto filter, Pageable pageable) {
+        Specification<Game> spec = GameSpecification.withFilters(filter);
+        
+        return gameRepository.findAll(spec, pageable)
+            .map(gameMapper::toListResponse);
     }
     
     public GameDetailResponse getGameById(Integer id) {
         Game game = gameRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Game", id));
         
-        GameDetailResponse response = gameMapper.toDetailResponse(game);
-        Double rating = gameRepository.calculateAverageRating(id);
-        
-        return new GameDetailResponse(
-            response.id(),
-            response.title(),
-            response.releaseYear(),
-            response.description(),
-            response.developer(),
-            response.publisher(),
-            response.genres(),
-            response.systemRequirements(),
-            response.reviews(),
-            rating
-        );
+        return gameMapper.toDetailResponse(game);
     }
     
     @Transactional

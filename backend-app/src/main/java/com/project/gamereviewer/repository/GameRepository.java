@@ -1,6 +1,9 @@
 package com.project.gamereviewer.repository;
 
 import com.project.gamereviewer.entity.Game;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +19,4 @@ public interface GameRepository extends JpaRepository<Game, Integer>, JpaSpecifi
     
     boolean existsByTitleAndReleaseYear(String title, Integer releaseYear);
     
-    @Query("SELECT COALESCE(AVG(r.score), 0.0) FROM Review r WHERE r.game.id = :gameId")
-    Double calculateAverageRating(@Param("gameId") Integer gameId);
 }

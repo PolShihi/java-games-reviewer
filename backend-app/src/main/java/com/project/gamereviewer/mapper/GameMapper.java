@@ -22,10 +22,8 @@ public interface GameMapper {
     @Mapping(source = "developer.name", target = "developerName")
     @Mapping(source = "publisher.name", target = "publisherName")
     @Mapping(source = "genres", target = "genreNames", qualifiedByName = "genresToNames")
-    @Mapping(target = "averageRating", ignore = true)
     GameListResponse toListResponse(Game game);
     
-    @Mapping(target = "averageRating", ignore = true)
     GameDetailResponse toDetailResponse(Game game);
     
     @Mapping(target = "id", ignore = true)
@@ -34,6 +32,7 @@ public interface GameMapper {
     @Mapping(target = "genres", ignore = true)
     @Mapping(target = "reviews", ignore = true)
     @Mapping(target = "systemRequirements", ignore = true)
+    @Mapping(target = "averageRating", ignore = true)
     Game toEntity(GameCreateRequest request);
     
     @Named("genresToNames")

@@ -8,5 +8,7 @@ public record GameFilterDto(
     Integer yearTo,
     List<Integer> genreIds,
     Integer developerId,
-    Integer publisherId
+    Integer publisherId,
+    Double ratingFrom,
+    Double ratingTo
 ) {}
