@@ -29,3 +29,4 @@ https://sonarcloud.io/project/configuration?id=PolShihi_java-games-reviewer
 | Создание Service слоя | 2.9 | 2.6 |
 | Создание Controller слоя | 3.8 | 4.1 |
 | Разработка Filter Specification для списка игр | 1.4 | 1.2 |
+| Правки метода getGameById у GameController | 0.4 | 1.4 |

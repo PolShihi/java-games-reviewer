@@ -6,6 +6,7 @@ import com.project.gamereviewer.dto.request.GameUpdateRequest;
 import com.project.gamereviewer.dto.response.GameDetailResponse;
 import com.project.gamereviewer.dto.response.GameListResponse;
 import com.project.gamereviewer.entity.Game;
+import com.project.gamereviewer.entity.Review;
 import com.project.gamereviewer.entity.Genre;
 import com.project.gamereviewer.entity.ProductionCompany;
 import com.project.gamereviewer.exception.DuplicateResourceException;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor

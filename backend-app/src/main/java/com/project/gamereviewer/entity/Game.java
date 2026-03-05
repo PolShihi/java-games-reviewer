@@ -2,7 +2,9 @@ package com.project.gamereviewer.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Formula;
@@ -14,7 +16,9 @@ import java.util.Set;
 @Table(name = "games", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"title", "release_year"})
 })
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"genres", "reviews", "systemRequirements"})
@@ -22,6 +26,7 @@ public class Game {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @Column(nullable = false, length = 150)

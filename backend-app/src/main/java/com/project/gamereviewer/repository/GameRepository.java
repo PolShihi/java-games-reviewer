@@ -4,6 +4,7 @@ import com.project.gamereviewer.entity.Game;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,17 @@ public interface GameRepository extends JpaRepository<Game, Integer>, JpaSpecifi
     
     boolean existsByTitleAndReleaseYear(String title, Integer releaseYear);
     
+    // @EntityGraph(attributePaths = {
+    //         "genres",
+    //         "reviews",
+    //         "systemRequirements"
+    // })
+    // Optional<Game> findDetailedById(Integer id);
+
+    @EntityGraph(attributePaths = {
+        "genres",
+        "reviews",
+        "systemRequirements"
+    })
+    Optional<Game> findById(Integer id);
 }
