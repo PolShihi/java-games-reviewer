@@ -17,6 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GenreService {
+
+    public static final String RESOURSE_NAME = "Genre";
+    public static final String RESOURSE_NAME_FIELD_NAME = "name";
     
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
@@ -30,13 +33,13 @@ public class GenreService {
     public GenreResponse getGenreById(Integer id) {
         return genreRepository.findById(id)
             .map(genreMapper::toResponse)
-            .orElseThrow(() -> new ResourceNotFoundException("Genre", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
     }
     
     @Transactional
     public GenreResponse createGenre(GenreCreateRequest request) {
         if (genreRepository.existsByName(request.name())) {
-            throw new DuplicateResourceException("Genre", "name", request.name());
+            throw new DuplicateResourceException(RESOURSE_NAME, RESOURSE_NAME_FIELD_NAME, request.name());
         }
         
         Genre genre = genreMapper.toEntity(request);
@@ -47,10 +50,10 @@ public class GenreService {
     @Transactional
     public GenreResponse updateGenre(Integer id, GenreCreateRequest request) {
         Genre genre = genreRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Genre", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
         
         if (!genre.getName().equals(request.name()) && genreRepository.existsByName(request.name())) {
-            throw new DuplicateResourceException("Genre", "name", request.name());
+            throw new DuplicateResourceException(RESOURSE_NAME, RESOURSE_NAME_FIELD_NAME, request.name());
         }
         
         genre.setName(request.name());
@@ -61,7 +64,7 @@ public class GenreService {
     @Transactional
     public void deleteGenre(Integer id) {
         if (!genreRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Genre", id);
+            throw new ResourceNotFoundException(RESOURSE_NAME, id);
         }
         genreRepository.deleteById(id);
     }

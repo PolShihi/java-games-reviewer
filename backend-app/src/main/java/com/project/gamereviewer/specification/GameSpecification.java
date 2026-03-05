@@ -1,14 +1,20 @@
 package com.project.gamereviewer.specification;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.data.jpa.domain.Specification;
+
 import com.project.gamereviewer.dto.filter.GameFilterDto;
 import com.project.gamereviewer.entity.Game;
 import com.project.gamereviewer.entity.Genre;
 import com.project.gamereviewer.entity.Review;
-import jakarta.persistence.criteria.*;
-import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 
 public class GameSpecification {
 

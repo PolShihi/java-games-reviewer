@@ -13,12 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MediaOutletService {
+
+    public static final String RESOURSE_NAME = "MediaOutlet";
+    public static final String RESOURSE_NAME_FIELD_NAME = "name";
     
     private final MediaOutletRepository mediaOutletRepository;
     private final MediaOutletMapper mediaOutletMapper;
@@ -31,13 +32,13 @@ public class MediaOutletService {
     public MediaOutletResponse getMediaOutletById(Integer id) {
         return mediaOutletRepository.findById(id)
             .map(mediaOutletMapper::toResponse)
-            .orElseThrow(() -> new ResourceNotFoundException("MediaOutlet", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
     }
     
     @Transactional
     public MediaOutletResponse createMediaOutlet(MediaOutletCreateRequest request) {
         if (mediaOutletRepository.existsByName(request.name())) {
-            throw new DuplicateResourceException("MediaOutlet", "name", request.name());
+            throw new DuplicateResourceException(RESOURSE_NAME, RESOURSE_NAME_FIELD_NAME, request.name());
         }
         
         MediaOutlet mediaOutlet = mediaOutletMapper.toEntity(request);
@@ -48,10 +49,10 @@ public class MediaOutletService {
     @Transactional
     public MediaOutletResponse updateMediaOutlet(Integer id, MediaOutletCreateRequest request) {
         MediaOutlet mediaOutlet = mediaOutletRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("MediaOutlet", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
         
         if (!mediaOutlet.getName().equals(request.name()) && mediaOutletRepository.existsByName(request.name())) {
-            throw new DuplicateResourceException("MediaOutlet", "name", request.name());
+            throw new DuplicateResourceException(RESOURSE_NAME, RESOURSE_NAME_FIELD_NAME, request.name());
         }
         
         mediaOutlet.setName(request.name());
@@ -65,7 +66,7 @@ public class MediaOutletService {
     @Transactional
     public void deleteMediaOutlet(Integer id) {
         if (!mediaOutletRepository.existsById(id)) {
-            throw new ResourceNotFoundException("MediaOutlet", id);
+            throw new ResourceNotFoundException(RESOURSE_NAME, id);
         }
         mediaOutletRepository.deleteById(id);
     }

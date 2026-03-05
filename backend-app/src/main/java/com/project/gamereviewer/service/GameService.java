@@ -6,7 +6,6 @@ import com.project.gamereviewer.dto.request.GameUpdateRequest;
 import com.project.gamereviewer.dto.response.GameDetailResponse;
 import com.project.gamereviewer.dto.response.GameListResponse;
 import com.project.gamereviewer.entity.Game;
-import com.project.gamereviewer.entity.Review;
 import com.project.gamereviewer.entity.Genre;
 import com.project.gamereviewer.entity.ProductionCompany;
 import com.project.gamereviewer.exception.DuplicateResourceException;
@@ -31,6 +30,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GameService {
+
+    public static final String RESOURSE_NAME = "Game";
+    public static final String TITLE_AND_YEAR_DUPLICATION_EXCEPTION_MESSAGE = "Game with title '%s' and year %d already exists";
+    public static final String NOT_ALL_GENRES_FOUND_EXCEPTION_MESSAGE = "Some genres not found";
     
     private final GameRepository gameRepository;
     private final GenreRepository genreRepository;
@@ -51,7 +54,7 @@ public class GameService {
     
     public GameDetailResponse getGameById(Integer id) {
         Game game = gameRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Game", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
         
         return gameMapper.toDetailResponse(game);
     }
@@ -60,7 +63,7 @@ public class GameService {
     public GameDetailResponse createGame(GameCreateRequest request) {
         if (gameRepository.existsByTitleAndReleaseYear(request.title(), request.releaseYear())) {
             throw new DuplicateResourceException(
-                String.format("Game with title '%s' and year %d already exists", 
+                String.format(TITLE_AND_YEAR_DUPLICATION_EXCEPTION_MESSAGE, 
                     request.title(), request.releaseYear())
             );
         }
@@ -69,20 +72,20 @@ public class GameService {
         
         if (request.developerId() != null) {
             ProductionCompany developer = productionCompanyRepository.findById(request.developerId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProductionCompany", request.developerId()));
+                .orElseThrow(() -> new ResourceNotFoundException(ProductionCompanyService.RESOURSE_NAME, request.developerId()));
             game.setDeveloper(developer);
         }
         
         if (request.publisherId() != null) {
             ProductionCompany publisher = productionCompanyRepository.findById(request.publisherId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProductionCompany", request.publisherId()));
+                .orElseThrow(() -> new ResourceNotFoundException(ProductionCompanyService.RESOURSE_NAME, request.publisherId()));
             game.setPublisher(publisher);
         }
         
         if (request.genreIds() != null && !request.genreIds().isEmpty()) {
             List<Genre> genres = genreRepository.findAllById(request.genreIds());
             if (genres.size() != request.genreIds().size()) {
-                throw new ResourceNotFoundException("Some genres not found");
+                throw new ResourceNotFoundException(NOT_ALL_GENRES_FOUND_EXCEPTION_MESSAGE);
             }
             game.setGenres(new HashSet<>(genres));
         }
@@ -90,26 +93,51 @@ public class GameService {
         Game saved = gameRepository.save(game);
         return getGameById(saved.getId());
     }
+
+    private void setGameTitle(Game game, GameUpdateRequest request) {
+        if (request.title() == null) {
+            return;
+        }
+
+        if (!game.getTitle().equals(request.title()) || 
+            (request.releaseYear() != null && !game.getReleaseYear().equals(request.releaseYear()))) {
+            
+            Integer yearToCheck = request.releaseYear() != null ? request.releaseYear() : game.getReleaseYear();
+            if (gameRepository.existsByTitleAndReleaseYear(request.title(), yearToCheck)) {
+                throw new DuplicateResourceException(
+                    String.format(TITLE_AND_YEAR_DUPLICATION_EXCEPTION_MESSAGE, 
+                        request.title(), yearToCheck)
+                );
+            }
+        }
+
+        game.setTitle(request.title());
+    }
+
+    private void setGameGenres(Game game, GameUpdateRequest request) {
+        if (request.genreIds() == null) {
+            return;
+        }
+
+        if (request.genreIds().isEmpty()) {
+            game.getGenres().clear();
+            return;
+        } 
+            
+        List<Genre> genres = genreRepository.findAllById(request.genreIds());
+        if (genres.size() != request.genreIds().size()) {
+            throw new ResourceNotFoundException(NOT_ALL_GENRES_FOUND_EXCEPTION_MESSAGE);
+        }
+
+        game.setGenres(new HashSet<>(genres));
+    }
     
     @Transactional
     public GameDetailResponse updateGame(Integer id, GameUpdateRequest request) {
         Game game = gameRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Game", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
         
-        if (request.title() != null) {
-            if (!game.getTitle().equals(request.title()) || 
-                (request.releaseYear() != null && !game.getReleaseYear().equals(request.releaseYear()))) {
-                
-                Integer yearToCheck = request.releaseYear() != null ? request.releaseYear() : game.getReleaseYear();
-                if (gameRepository.existsByTitleAndReleaseYear(request.title(), yearToCheck)) {
-                    throw new DuplicateResourceException(
-                        String.format("Game with title '%s' and year %d already exists", 
-                            request.title(), yearToCheck)
-                    );
-                }
-            }
-            game.setTitle(request.title());
-        }
+        setGameTitle(game, request);
         
         if (request.releaseYear() != null) {
             game.setReleaseYear(request.releaseYear());
@@ -121,27 +149,17 @@ public class GameService {
         
         if (request.developerId() != null) {
             ProductionCompany developer = productionCompanyRepository.findById(request.developerId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProductionCompany", request.developerId()));
+                .orElseThrow(() -> new ResourceNotFoundException(ProductionCompanyService.RESOURSE_NAME, request.developerId()));
             game.setDeveloper(developer);
         }
         
         if (request.publisherId() != null) {
             ProductionCompany publisher = productionCompanyRepository.findById(request.publisherId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProductionCompany", request.publisherId()));
+                .orElseThrow(() -> new ResourceNotFoundException(ProductionCompanyService.RESOURSE_NAME, request.publisherId()));
             game.setPublisher(publisher);
         }
         
-        if (request.genreIds() != null) {
-            if (request.genreIds().isEmpty()) {
-                game.getGenres().clear();
-            } else {
-                List<Genre> genres = genreRepository.findAllById(request.genreIds());
-                if (genres.size() != request.genreIds().size()) {
-                    throw new ResourceNotFoundException("Some genres not found");
-                }
-                game.setGenres(new HashSet<>(genres));
-            }
-        }
+        setGameGenres(game, request);
         
         gameRepository.save(game);
         return getGameById(id);
@@ -150,7 +168,7 @@ public class GameService {
     @Transactional
     public void deleteGame(Integer id) {
         if (!gameRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Game", id);
+            throw new ResourceNotFoundException(RESOURSE_NAME, id);
         }
         gameRepository.deleteById(id);
     }

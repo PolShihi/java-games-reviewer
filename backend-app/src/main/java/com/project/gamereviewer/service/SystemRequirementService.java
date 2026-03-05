@@ -17,12 +17,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SystemRequirementService {
+
+    public static final String RESOURSE_NAME = "SystemRequirement";
+    public static final String SYSTEM_REQUIREMENT_FOR_SAME_GAME_WITH_SAME_TYPE_EXCEPTION_MESSAGE = "System requirement for this game and type already exists";
     
     private final SystemRequirementRepository systemRequirementRepository;
     private final GameRepository gameRepository;
@@ -36,7 +38,7 @@ public class SystemRequirementService {
     
     public Page<SystemRequirementResponse> getSystemRequirementsByGameId(Integer gameId, Pageable pageable) {
         if (!gameRepository.existsById(gameId)) {
-            throw new ResourceNotFoundException("Game", gameId);
+            throw new ResourceNotFoundException(GameService.RESOURSE_NAME, gameId);
         }
         return systemRequirementRepository.findByGameId(gameId, pageable)
             .map(systemRequirementMapper::toResponse);
@@ -45,7 +47,7 @@ public class SystemRequirementService {
     public SystemRequirementResponse getSystemRequirementById(Integer id) {
         return systemRequirementRepository.findById(id)
             .map(systemRequirementMapper::toResponse)
-            .orElseThrow(() -> new ResourceNotFoundException("SystemRequirement", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
     }
     
     @Transactional
@@ -53,15 +55,15 @@ public class SystemRequirementService {
         if (systemRequirementRepository.existsByGameIdAndSystemRequirementTypeId(
                 request.gameId(), request.systemRequirementTypeId())) {
             throw new DuplicateResourceException(
-                "System requirement for this game and type already exists"
+                SYSTEM_REQUIREMENT_FOR_SAME_GAME_WITH_SAME_TYPE_EXCEPTION_MESSAGE
             );
         }
         
         Game game = gameRepository.findById(request.gameId())
-            .orElseThrow(() -> new ResourceNotFoundException("Game", request.gameId()));
+            .orElseThrow(() -> new ResourceNotFoundException(GameService.RESOURSE_NAME, request.gameId()));
         
         SystemRequirementType type = systemRequirementTypeRepository.findById(request.systemRequirementTypeId())
-            .orElseThrow(() -> new ResourceNotFoundException("SystemRequirementType", request.systemRequirementTypeId()));
+            .orElseThrow(() -> new ResourceNotFoundException(SystemRequirementTypeService.RESOURSE_NAME, request.systemRequirementTypeId()));
         
         SystemRequirement systemRequirement = systemRequirementMapper.toEntity(request);
         systemRequirement.setGame(game);
@@ -74,7 +76,7 @@ public class SystemRequirementService {
     @Transactional
     public SystemRequirementResponse updateSystemRequirement(Integer id, SystemRequirementCreateRequest request) {
         SystemRequirement systemRequirement = systemRequirementRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("SystemRequirement", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
         
         systemRequirement.setStorageGb(request.storageGb());
         systemRequirement.setRamGb(request.ramGb());
@@ -89,7 +91,7 @@ public class SystemRequirementService {
     @Transactional
     public void deleteSystemRequirement(Integer id) {
         if (!systemRequirementRepository.existsById(id)) {
-            throw new ResourceNotFoundException("SystemRequirement", id);
+            throw new ResourceNotFoundException(RESOURSE_NAME, id);
         }
         systemRequirementRepository.deleteById(id);
     }

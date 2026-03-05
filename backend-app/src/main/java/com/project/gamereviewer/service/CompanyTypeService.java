@@ -14,6 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CompanyTypeService {
+
+    public static final String RESOURSE_NAME = "CompanyType";
     
     private final CompanyTypeRepository companyTypeRepository;
     private final CompanyTypeMapper companyTypeMapper;
@@ -27,6 +29,6 @@ public class CompanyTypeService {
     public CompanyTypeResponse getCompanyTypeById(Integer id) {
         return companyTypeRepository.findById(id)
             .map(companyTypeMapper::toResponse)
-            .orElseThrow(() -> new ResourceNotFoundException("CompanyType", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
     }
 }

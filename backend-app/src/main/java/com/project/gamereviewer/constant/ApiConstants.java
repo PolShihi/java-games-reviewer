@@ -1,20 +1,13 @@
 package com.project.gamereviewer.constant;
 
-/**
- * Central place for API versioning and endpoint paths.
- * This allows easy version management and prevents magic strings throughout the codebase.
- */
 public final class ApiConstants {
     
     private ApiConstants() {
-        // Prevent instantiation
     }
     
-    // API Version
     public static final String API_VERSION = "v1";
     public static final String API_BASE_PATH = "/api/" + API_VERSION;
     
-    // Endpoint paths
     public static final String GAMES = API_BASE_PATH + "/games";
     public static final String GENRES = API_BASE_PATH + "/genres";
     public static final String PRODUCTION_COMPANIES = API_BASE_PATH + "/production-companies";

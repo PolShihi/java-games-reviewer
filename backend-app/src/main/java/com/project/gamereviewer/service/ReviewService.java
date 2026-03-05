@@ -17,12 +17,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReviewService {
+
+    public static final String RESOURSE_NAME = "Review";
+    public static final String REVIEW_ON_SAME_GAME_BY_SAME_MEDIA_OUTLET_EXCEPTION_MESSAGE = "This media outlet already reviewed this game";
     
     private final ReviewRepository reviewRepository;
     private final GameRepository gameRepository;
@@ -36,7 +38,7 @@ public class ReviewService {
     
     public Page<ReviewResponse> getReviewsByGameId(Integer gameId, Pageable pageable) {
         if (!gameRepository.existsById(gameId)) {
-            throw new ResourceNotFoundException("Game", gameId);
+            throw new ResourceNotFoundException(GameService.RESOURSE_NAME, gameId);
         }
         return reviewRepository.findByGameId(gameId, pageable)
             .map(reviewMapper::toResponse);
@@ -45,22 +47,22 @@ public class ReviewService {
     public ReviewResponse getReviewById(Integer id) {
         return reviewRepository.findById(id)
             .map(reviewMapper::toResponse)
-            .orElseThrow(() -> new ResourceNotFoundException("Review", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
     }
     
     @Transactional
     public ReviewResponse createReview(ReviewCreateRequest request) {
         if (reviewRepository.existsByGameIdAndMediaOutletId(request.gameId(), request.mediaOutletId())) {
             throw new DuplicateResourceException(
-                "This media outlet already reviewed this game"
+                REVIEW_ON_SAME_GAME_BY_SAME_MEDIA_OUTLET_EXCEPTION_MESSAGE
             );
         }
         
         Game game = gameRepository.findById(request.gameId())
-            .orElseThrow(() -> new ResourceNotFoundException("Game", request.gameId()));
+            .orElseThrow(() -> new ResourceNotFoundException(GameService.RESOURSE_NAME, request.gameId()));
         
         MediaOutlet mediaOutlet = mediaOutletRepository.findById(request.mediaOutletId())
-            .orElseThrow(() -> new ResourceNotFoundException("MediaOutlet", request.mediaOutletId()));
+            .orElseThrow(() -> new ResourceNotFoundException(MediaOutletService.RESOURSE_NAME, request.mediaOutletId()));
         
         Review review = reviewMapper.toEntity(request);
         review.setGame(game);
@@ -73,7 +75,7 @@ public class ReviewService {
     @Transactional
     public ReviewResponse updateReview(Integer id, ReviewCreateRequest request) {
         Review review = reviewRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Review", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
         
         review.setScore(request.score());
         review.setSummary(request.summary());
@@ -85,7 +87,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Integer id) {
         if (!reviewRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Review", id);
+            throw new ResourceNotFoundException(RESOURSE_NAME, id);
         }
         reviewRepository.deleteById(id);
     }

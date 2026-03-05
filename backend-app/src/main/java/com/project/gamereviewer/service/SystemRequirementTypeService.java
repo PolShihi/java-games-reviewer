@@ -14,6 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SystemRequirementTypeService {
+
+    public static final String RESOURSE_NAME = "SystemRequirementType";
     
     private final SystemRequirementTypeRepository systemRequirementTypeRepository;
     private final SystemRequirementTypeMapper systemRequirementTypeMapper;
@@ -27,6 +29,6 @@ public class SystemRequirementTypeService {
     public SystemRequirementTypeResponse getSystemRequirementTypeById(Integer id) {
         return systemRequirementTypeRepository.findById(id)
             .map(systemRequirementTypeMapper::toResponse)
-            .orElseThrow(() -> new ResourceNotFoundException("SystemRequirementType", id));
+            .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
     }
 }

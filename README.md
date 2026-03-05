@@ -30,3 +30,8 @@ https://sonarcloud.io/project/overview?id=PolShihi_java-games-reviewer
 | Создание Controller слоя | 3.8 | 4.1 |
 | Разработка Filter Specification для списка игр | 1.4 | 1.2 |
 | Правки метода getGameById у GameController | 0.4 | 1.4 |
+| Правки от ментора | 0.9 | 0.75 |
+| **Итого** | **16.6** | **16.35** |
+||||
+| **Разработка Frontend React приложения** | | |
+| Установка зависимостей, настройка окружения Инициализация React проекта, файл конфигурации | 2.1 |  |
