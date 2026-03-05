@@ -1,6 +1,6 @@
 Тема: система управления игровой критикой
 
-https://sonarcloud.io/project/configuration?id=PolShihi_java-games-reviewer
+https://sonarcloud.io/project/overview?id=PolShihi_java-games-reviewer
 
 | Цель (Задача) | План (час) | Факт (час) |
 | :--- | :--- | :--- |
