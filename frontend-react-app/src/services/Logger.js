@@ -10,10 +10,15 @@ const originalFactory = log.methodFactory;
 log.methodFactory = function (methodName, logLevel, loggerName) {
   const rawMethod = originalFactory(methodName, logLevel, loggerName);
   
-  return function (message) {
+  return function (...messages) {
     const timestamp = new Date().toLocaleTimeString();
     const style = 'color: gray; font-weight: lighter;'; 
-    rawMethod(`%c[${timestamp}] ${message}`, style);
+    if (messages.length === 0) {
+      rawMethod(`%c[${timestamp}]`, style);
+      return;
+    }
+
+    rawMethod(`%c[${timestamp}]`, style, ...messages);
   };
 };
 

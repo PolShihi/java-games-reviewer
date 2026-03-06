@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from '../config';
+import { toApiError } from '../utils/apiError';
 
 const api = axios.create({
     baseURL: config.api.baseUrl, 
@@ -8,5 +9,10 @@ const api = axios.create({
     },
     timeout: config.api.timeout || 5000, 
 });
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => Promise.reject(toApiError(error))
+);
 
 export default api;
