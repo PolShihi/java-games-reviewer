@@ -5,6 +5,10 @@ class GameService {
         return api.get('/games', { params });
     }
 
+    filter(params) {
+        return api.get('/games/filter', { params });
+    }
+
     getById(id) {
         return api.get(`/games/${id}`);
     }

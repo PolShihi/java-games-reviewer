@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import GameService from '../services/GameService';
-import log from 'loglevel';
+import log from '../services/Logger';
+import { normalizePageResponse } from '../utils/pageResponse';
 
 import { 
   Container, 
@@ -27,11 +28,7 @@ const GamesPage = () => {
   const [page, _setPage] = useState(0);
   const [pageSize, _setPageSize] = useState(10);
 
-  useEffect(() => {
-    fetchGames();
-  }, [page, pageSize]);
-
-  const fetchGames = async () => {
+  const fetchGames = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -42,19 +39,22 @@ const GamesPage = () => {
         sortDirection: 'ASC' 
       });
 
-      log.debug('API Response:', response.data);
-
-      const gamesData = response.data.content || response.data;
+      const pageData = normalizePageResponse(response.data);
+      const gamesData = pageData.content;
 
       setGames(gamesData);
       setError(null);
     } catch (err) {
       log.error('Error fetching games:', err);
-      setError('Не удалось загрузить список игр. Проверь соединение с сервером.');
+      setError('Failed to load game list. Check your connection to the server.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
+
+  useEffect(() => {
+    fetchGames();
+  }, [fetchGames]);
 
   if (loading) {
     return (
@@ -79,7 +79,7 @@ const GamesPage = () => {
       </Typography>
       
       {games.length === 0 ? (
-        <Alert severity="info">Игры не найдены.</Alert>
+        <Alert severity="info">Games not found.</Alert>
       ) : (
         <TableContainer component={Paper} elevation={3}>
           <Table sx={{ minWidth: 650 }} aria-label="games table">
