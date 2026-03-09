@@ -1,4 +1,5 @@
 ﻿import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
@@ -23,6 +24,7 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import AddRequirementDialog from '../components/system-requirements/AddRequirementDialog';
 import GameService from '../services/GameService';
 import log from '../services/Logger';
 
@@ -34,6 +36,7 @@ function GameDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [requirementDialogOpen, setRequirementDialogOpen] = useState(false);
 
   const loadGame = useCallback(async () => {
     if (!id) {
@@ -189,7 +192,16 @@ function GameDetailsPage() {
 
       <Paper sx={{ p: 2.5 }}>
         <Stack spacing={1.5}>
-          <Typography variant="h6">System Requirements</Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ md: 'center' }} spacing={1.5}>
+            <Typography variant="h6">System Requirements</Typography>
+            <Button
+              variant="outlined"
+              startIcon={<AddCircleOutlineRoundedIcon />}
+              onClick={() => setRequirementDialogOpen(true)}
+            >
+              Add requirement
+            </Button>
+          </Stack>
           {(game.systemRequirements || []).length === 0 ? (
             <Alert severity="info">No system requirements added yet.</Alert>
           ) : (
@@ -251,6 +263,13 @@ function GameDetailsPage() {
           )}
         </Stack>
       </Paper>
+
+      <AddRequirementDialog
+        open={requirementDialogOpen}
+        gameId={game.id}
+        onClose={() => setRequirementDialogOpen(false)}
+        onCreated={loadGame}
+      />
     </Stack>
   );
 }
