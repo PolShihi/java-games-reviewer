@@ -77,7 +77,22 @@ public class SystemRequirementService {
     public SystemRequirementResponse updateSystemRequirement(Integer id, SystemRequirementCreateRequest request) {
         SystemRequirement systemRequirement = systemRequirementRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
+
+        if (systemRequirementRepository.existsByGameIdAndSystemRequirementTypeIdAndIdNot(
+                request.gameId(), request.systemRequirementTypeId(), id)) {
+            throw new DuplicateResourceException(
+                SYSTEM_REQUIREMENT_FOR_SAME_GAME_WITH_SAME_TYPE_EXCEPTION_MESSAGE
+            );
+        }
+
+        Game game = gameRepository.findById(request.gameId())
+            .orElseThrow(() -> new ResourceNotFoundException(GameService.RESOURSE_NAME, request.gameId()));
+
+        SystemRequirementType type = systemRequirementTypeRepository.findById(request.systemRequirementTypeId())
+            .orElseThrow(() -> new ResourceNotFoundException(SystemRequirementTypeService.RESOURSE_NAME, request.systemRequirementTypeId()));
         
+        systemRequirement.setGame(game);
+        systemRequirement.setSystemRequirementType(type);
         systemRequirement.setStorageGb(request.storageGb());
         systemRequirement.setRamGb(request.ramGb());
         systemRequirement.setCpuGhz(request.cpuGhz());

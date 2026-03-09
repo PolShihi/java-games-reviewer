@@ -19,6 +19,8 @@ public interface SystemRequirementRepository extends JpaRepository<SystemRequire
     Optional<SystemRequirement> findByGameIdAndSystemRequirementTypeId(Integer gameId, Integer typeId);
     
     boolean existsByGameIdAndSystemRequirementTypeId(Integer gameId, Integer typeId);
+
+    boolean existsByGameIdAndSystemRequirementTypeIdAndIdNot(Integer gameId, Integer typeId, Integer id);
     
     void deleteByGameId(Integer gameId);
 }
