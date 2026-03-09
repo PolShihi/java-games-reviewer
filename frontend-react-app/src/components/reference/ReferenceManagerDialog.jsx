@@ -1,4 +1,4 @@
-import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+﻿import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import {
@@ -30,7 +30,7 @@ import GenreService from '../../services/GenreService';
 import log from '../../services/Logger';
 import MediaOutletService from '../../services/MediaOutletService';
 import ProductionCompanyService from '../../services/ProductionCompanyService';
-import { normalizePageResponse } from '../../utils/pageResponse';
+import { fetchAllPageContent } from '../../utils/fetchAllPageContent';
 
 const ENTITY_TYPES = Object.freeze({
   GENRES: 'genres',
@@ -110,24 +110,26 @@ function ReferenceManagerDialog({
       }
 
       if (entityType === ENTITY_TYPES.PRODUCTION_COMPANIES) {
-        const response = await ProductionCompanyService.getAll({
-          page: 0,
-          size: 300,
-          sortBy: 'name',
-          sortDirection: 'ASC',
-        });
-        setRows(normalizePageResponse(response.data).content);
+        const allCompanies = await fetchAllPageContent(
+          (params) => ProductionCompanyService.getAll(params),
+          {
+            sortBy: 'name',
+            sortDirection: 'ASC',
+          }
+        );
+        setRows(allCompanies);
         return;
       }
 
       if (entityType === ENTITY_TYPES.MEDIA_OUTLETS) {
-        const response = await MediaOutletService.getAll({
-          page: 0,
-          size: 300,
-          sortBy: 'name',
-          sortDirection: 'ASC',
-        });
-        setRows(normalizePageResponse(response.data).content);
+        const allOutlets = await fetchAllPageContent(
+          (params) => MediaOutletService.getAll(params),
+          {
+            sortBy: 'name',
+            sortDirection: 'ASC',
+          }
+        );
+        setRows(allOutlets);
       }
     } catch (loadError) {
       log.error('Failed to load reference rows:', loadError);
@@ -372,7 +374,7 @@ function ReferenceManagerDialog({
                     type="number"
                     value={form.foundedYear ?? ''}
                     onChange={handleFieldChange('foundedYear')}
-                    inputProps={{ min: 1900 }}
+                    slotProps = {{htmlInput : { min: 1900 }}}
                     sx={{ minWidth: 150 }}
                   />
                 )}

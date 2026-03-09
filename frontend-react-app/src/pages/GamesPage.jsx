@@ -31,6 +31,7 @@ import GameService from '../services/GameService';
 import GenreService from '../services/GenreService';
 import ProductionCompanyService from '../services/ProductionCompanyService';
 import log from '../services/Logger';
+import { fetchAllPageContent } from '../utils/fetchAllPageContent';
 import { normalizePageResponse } from '../utils/pageResponse';
 
 const EMPTY_FILTERS = Object.freeze({
@@ -102,14 +103,14 @@ const GamesPage = () => {
 
   const fetchCompanies = useCallback(async () => {
     try {
-      const response = await ProductionCompanyService.getAll({
-        page: 0,
-        size: 200,
-        sortBy: 'name',
-        sortDirection: 'ASC',
-      });
-      const pageData = normalizePageResponse(response.data);
-      setCompanies(pageData.content);
+      const allCompanies = await fetchAllPageContent(
+        (params) => ProductionCompanyService.getAll(params),
+        {
+          sortBy: 'name',
+          sortDirection: 'ASC',
+        }
+      );
+      setCompanies(allCompanies);
     } catch (err) {
       log.warn('Failed to load companies for filters:', err);
     }

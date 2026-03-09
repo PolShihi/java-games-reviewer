@@ -23,7 +23,7 @@ import GameService from '../services/GameService';
 import GenreService from '../services/GenreService';
 import log from '../services/Logger';
 import ProductionCompanyService from '../services/ProductionCompanyService';
-import { normalizePageResponse } from '../utils/pageResponse';
+import { fetchAllPageContent } from '../utils/fetchAllPageContent';
 
 const DEFAULT_VALUES = {
   title: '',
@@ -64,18 +64,19 @@ function GameFormPage({ mode }) {
   const [submitError, setSubmitError] = React.useState(null);
 
   const loadReferenceData = React.useCallback(async () => {
-    const [genresResponse, companiesResponse] = await Promise.all([
+    const [genresResponse, companies] = await Promise.all([
       GenreService.getAll(),
-      ProductionCompanyService.getAll({
-        page: 0,
-        size: 300,
+      fetchAllPageContent(
+        (params) => ProductionCompanyService.getAll(params),
+        {
         sortBy: 'id',
         sortDirection: 'ASC',
-      }),
+        }
+      ),
     ]);
 
     setGenres(Array.isArray(genresResponse.data) ? genresResponse.data : []);
-    setCompanies(normalizePageResponse(companiesResponse.data).content);
+    setCompanies(companies);
   }, []);
 
   const loadGameForEdit = React.useCallback(async () => {
@@ -207,8 +208,7 @@ function GameFormPage({ mode }) {
               fullWidth
               error={Boolean(errors.releaseYear)}
               helperText={errors.releaseYear?.message}
-              // inputProps={{ min: 1950 }}
-              htmlInput = {{ min: 1950 }}
+              slotProps = {{htmlInput : { min: 1950 }}}
               {...register('releaseYear', {
                 required: 'Release year is required',
                 valueAsNumber: true,
