@@ -29,6 +29,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import GameService from '../services/GameService';
 import GenreService from '../services/GenreService';
+import ProductionCompanyService from '../services/ProductionCompanyService';
 import log from '../services/Logger';
 import { normalizePageResponse } from '../utils/pageResponse';
 
@@ -37,6 +38,10 @@ const EMPTY_FILTERS = Object.freeze({
   yearFrom: '',
   yearTo: '',
   genreIds: [],
+  developerId: '',
+  publisherId: '',
+  ratingFrom: '',
+  ratingTo: '',
 });
 
 const GamesPage = () => {
@@ -44,6 +49,7 @@ const GamesPage = () => {
 
   const [games, setGames] = useState([]);
   const [genres, setGenres] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -76,7 +82,11 @@ const GamesPage = () => {
         appliedFilters.title ||
           appliedFilters.yearFrom ||
           appliedFilters.yearTo ||
-          appliedFilters.genreIds.length
+          appliedFilters.genreIds.length ||
+          appliedFilters.developerId ||
+          appliedFilters.publisherId ||
+          appliedFilters.ratingFrom ||
+          appliedFilters.ratingTo
       ),
     [appliedFilters]
   );
@@ -87,6 +97,21 @@ const GamesPage = () => {
       setGenres(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       log.warn('Failed to load genres for filters:', err);
+    }
+  }, []);
+
+  const fetchCompanies = useCallback(async () => {
+    try {
+      const response = await ProductionCompanyService.getAll({
+        page: 0,
+        size: 200,
+        sortBy: 'name',
+        sortDirection: 'ASC',
+      });
+      const pageData = normalizePageResponse(response.data);
+      setCompanies(pageData.content);
+    } catch (err) {
+      log.warn('Failed to load companies for filters:', err);
     }
   }, []);
 
@@ -109,6 +134,10 @@ const GamesPage = () => {
           yearFrom: appliedFilters.yearFrom ? Number(appliedFilters.yearFrom) : undefined,
           yearTo: appliedFilters.yearTo ? Number(appliedFilters.yearTo) : undefined,
           genreIds: appliedFilters.genreIds.length ? appliedFilters.genreIds.join(',') : undefined,
+          developerId: appliedFilters.developerId ? Number(appliedFilters.developerId) : undefined,
+          publisherId: appliedFilters.publisherId ? Number(appliedFilters.publisherId) : undefined,
+          ratingFrom: appliedFilters.ratingFrom ? Number(appliedFilters.ratingFrom) : undefined,
+          ratingTo: appliedFilters.ratingTo ? Number(appliedFilters.ratingTo) : undefined,
         };
 
         response = await GameService.filter(filterParams);
@@ -131,7 +160,8 @@ const GamesPage = () => {
 
   useEffect(() => {
     fetchGenres();
-  }, [fetchGenres]);
+    fetchCompanies();
+  }, [fetchGenres, fetchCompanies]);
 
   useEffect(() => {
     fetchGames();
@@ -166,6 +196,10 @@ const GamesPage = () => {
     setFilters((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
+  const handleSelectFilterChange = (field) => (event) => {
+    setFilters((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
   const handleGenreChange = (event) => {
     const value = event.target.value;
     const genreIds = (Array.isArray(value) ? value : value.split(',')).map(Number);
@@ -178,13 +212,21 @@ const GamesPage = () => {
       yearFrom: filters.yearFrom,
       yearTo: filters.yearTo,
       genreIds: filters.genreIds,
+      developerId: filters.developerId,
+      publisherId: filters.publisherId,
+      ratingFrom: filters.ratingFrom,
+      ratingTo: filters.ratingTo,
     });
     setPage(0);
   };
 
   const resetFilters = () => {
-    setFilters(EMPTY_FILTERS);
-    setAppliedFilters(EMPTY_FILTERS);
+    const resetValue = {
+      ...EMPTY_FILTERS,
+      genreIds: [],
+    };
+    setFilters(resetValue);
+    setAppliedFilters(resetValue);
     setPage(0);
   };
 
@@ -219,65 +261,121 @@ const GamesPage = () => {
       </Typography>
 
       <Paper sx={{ p: 2 }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-end' }}>
-          <TextField
-            label="Search title"
-            value={filters.title}
-            onChange={handleTextFilterChange('title')}
-            fullWidth
-          />
+        <Stack spacing={2}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <TextField
+              label="Search title"
+              value={filters.title}
+              onChange={handleTextFilterChange('title')}
+              fullWidth
+            />
 
-          <TextField
-            label="Year from"
-            type="number"
-            value={filters.yearFrom}
-            onChange={handleTextFilterChange('yearFrom')}
-            htmlInput = {{ min: 1950 }}
-            // inputProps={{ min: 1950 }}
-            sx={{ minWidth: 140 }}
-          />
+            <TextField
+              label="Year from"
+              type="number"
+              value={filters.yearFrom}
+              onChange={handleTextFilterChange('yearFrom')}
+              htmlInput={{ min: 1950 }}
+              //inputProps={{ min: 1950 }}
+              sx={{ minWidth: 140 }}
+            />
 
-          <TextField
-            label="Year to"
-            type="number"
-            value={filters.yearTo}
-            onChange={handleTextFilterChange('yearTo')}
-            // inputProps={{ min: 1950 }}
-            htmlInput = {{ min: 1950 }}
-            sx={{ minWidth: 140 }}
-          />
+            <TextField
+              label="Year to"
+              type="number"
+              value={filters.yearTo}
+              onChange={handleTextFilterChange('yearTo')}
+              //inputProps={{ min: 1950 }}
+              htmlInput={{ min: 1950 }}
+              sx={{ minWidth: 140 }}
+            />
 
-          <FormControl sx={{ minWidth: 240 }}>
-            <InputLabel id="genres-filter-label">Genres</InputLabel>
-            <Select
-              labelId="genres-filter-label"
-              id="genres-filter"
-              multiple
-              value={filters.genreIds}
-              onChange={handleGenreChange}
-              input={<OutlinedInput label="Genres" />}
-              renderValue={(selected) =>
-                selected
-                  .map((id) => genres.find((genre) => genre.id === id)?.name)
-                  .filter(Boolean)
-                  .join(', ')
-              }
-            >
-              {genres.map((genre) => (
-                <MenuItem key={genre.id} value={genre.id}>
-                  {genre.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            <FormControl sx={{ minWidth: 240 }}>
+              <InputLabel id="genres-filter-label">Genres</InputLabel>
+              <Select
+                labelId="genres-filter-label"
+                id="genres-filter"
+                multiple
+                value={filters.genreIds}
+                onChange={handleGenreChange}
+                input={<OutlinedInput label="Genres" />}
+                renderValue={(selected) =>
+                  selected
+                    .map((id) => genres.find((genre) => genre.id === id)?.name)
+                    .filter(Boolean)
+                    .join(', ')
+                }
+              >
+                {genres.map((genre) => (
+                  <MenuItem key={genre.id} value={genre.id}>
+                    {genre.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
 
-          <Button variant="contained" onClick={applyFilters}>
-            Apply
-          </Button>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-end' }}>
+            <FormControl sx={{ minWidth: 240 }}>
+              <InputLabel id="developer-filter-label">Developer</InputLabel>
+              <Select
+                labelId="developer-filter-label"
+                label="Developer"
+                value={filters.developerId}
+                onChange={handleSelectFilterChange('developerId')}
+              >
+                <MenuItem value="">All</MenuItem>
+                {companies.map((company) => (
+                  <MenuItem key={`dev-${company.id}`} value={company.id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-          <Button variant="outlined" onClick={resetFilters}>
-            Reset
-          </Button>
+            <FormControl sx={{ minWidth: 240 }}>
+              <InputLabel id="publisher-filter-label">Publisher</InputLabel>
+              <Select
+                labelId="publisher-filter-label"
+                label="Publisher"
+                value={filters.publisherId}
+                onChange={handleSelectFilterChange('publisherId')}
+              >
+                <MenuItem value="">All</MenuItem>
+                {companies.map((company) => (
+                  <MenuItem key={`pub-${company.id}`} value={company.id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Rating from"
+              type="number"
+              value={filters.ratingFrom}
+              onChange={handleTextFilterChange('ratingFrom')}
+              inputProps={{ min: 0, max: 100 }}
+              sx={{ minWidth: 140 }}
+            />
+
+            <TextField
+              label="Rating to"
+              type="number"
+              value={filters.ratingTo}
+              onChange={handleTextFilterChange('ratingTo')}
+              inputProps={{ min: 0, max: 100 }}
+              sx={{ minWidth: 140 }}
+            />
+
+            <Button variant="contained" onClick={applyFilters}>
+              Apply
+            </Button>
+
+            <Button variant="outlined" onClick={resetFilters}>
+              Reset
+            </Button>
+          </Stack>
         </Stack>
       </Paper>
 
