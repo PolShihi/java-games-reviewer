@@ -471,7 +471,7 @@ const GamesPage = () => {
             onPageChange={handleChangePage}
             rowsPerPage={pageSize}
             onRowsPerPageChange={handleChangePageSize}
-            rowsPerPageOptions={[5, 10, 20, 50]}
+            rowsPerPageOptions={[1, 5, 10, 20, 50]}
           />
         </TableContainer>
       )}
