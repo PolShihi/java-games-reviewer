@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import BuildRoundedIcon from '@mui/icons-material/BuildRounded';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {
   Alert,
@@ -19,6 +20,7 @@ import {
 } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import ReferenceManagerDialog from '../components/reference/ReferenceManagerDialog';
 import GameService from '../services/GameService';
 import GenreService from '../services/GenreService';
 import log from '../services/Logger';
@@ -62,6 +64,8 @@ function GameFormPage({ mode }) {
   const [companies, setCompanies] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [submitError, setSubmitError] = React.useState(null);
+  const [referenceDialogOpen, setReferenceDialogOpen] = React.useState(false);
+  const [referenceEntityType, setReferenceEntityType] = React.useState('genres');
 
   const loadReferenceData = React.useCallback(async () => {
     const [genresResponse, companies] = await Promise.all([
@@ -69,8 +73,8 @@ function GameFormPage({ mode }) {
       fetchAllPageContent(
         (params) => ProductionCompanyService.getAll(params),
         {
-        sortBy: 'id',
-        sortDirection: 'ASC',
+          sortBy: 'id',
+          sortDirection: 'ASC',
         }
       ),
     ]);
@@ -164,6 +168,19 @@ function GameFormPage({ mode }) {
     }
   };
 
+  const openReferenceDialog = (entityType) => {
+    setReferenceEntityType(entityType);
+    setReferenceDialogOpen(true);
+  };
+
+  const closeReferenceDialog = () => {
+    setReferenceDialogOpen(false);
+  };
+
+  const handleReferenceChanged = async () => {
+    await loadReferenceData();
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={10}>
@@ -208,7 +225,7 @@ function GameFormPage({ mode }) {
               fullWidth
               error={Boolean(errors.releaseYear)}
               helperText={errors.releaseYear?.message}
-              slotProps = {{htmlInput : { min: 1950 }}}
+              slotProps={{ htmlInput: { min: 1950 } }}
               {...register('releaseYear', {
                 required: 'Release year is required',
                 valueAsNumber: true,
@@ -227,83 +244,110 @@ function GameFormPage({ mode }) {
               {...register('description')}
             />
 
-            <Controller
-              name="developerId"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth>
-                  <InputLabel id="developer-select-label">Developer</InputLabel>
-                  <Select
-                    {...field}
-                    labelId="developer-select-label"
-                    label="Developer"
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    {companies.map((company) => (
-                      <MenuItem key={`developer-${company.id}`} value={company.id}>
-                        {company.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            />
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems={{ md: 'flex-end' }}>
+              <Controller
+                name="developerId"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="developer-select-label">Developer</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="developer-select-label"
+                      label="Developer"
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      {companies.map((company) => (
+                        <MenuItem key={`developer-${company.id}`} value={company.id}>
+                          {company.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<BuildRoundedIcon />}
+                onClick={() => openReferenceDialog('production-companies')}
+              >
+                Manage
+              </Button>
+            </Stack>
 
-            <Controller
-              name="publisherId"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth>
-                  <InputLabel id="publisher-select-label">Publisher</InputLabel>
-                  <Select
-                    {...field}
-                    labelId="publisher-select-label"
-                    label="Publisher"
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    {companies.map((company) => (
-                      <MenuItem key={`publisher-${company.id}`} value={company.id}>
-                        {company.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            />
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems={{ md: 'flex-end' }}>
+              <Controller
+                name="publisherId"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel id="publisher-select-label">Publisher</InputLabel>
+                    <Select
+                      {...field}
+                      labelId="publisher-select-label"
+                      label="Publisher"
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      {companies.map((company) => (
+                        <MenuItem key={`publisher-${company.id}`} value={company.id}>
+                          {company.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<BuildRoundedIcon />}
+                onClick={() => openReferenceDialog('production-companies')}
+              >
+                Manage
+              </Button>
+            </Stack>
 
-            <Controller
-              name="genreIds"
-              control={control}
-              rules={{
-                validate: (value) =>
-                  (Array.isArray(value) && value.length > 0) || 'Select at least one genre',
-              }}
-              render={({ field }) => (
-                <FormControl fullWidth error={Boolean(errors.genreIds)}>
-                  <InputLabel id="genre-multi-select-label">Genres</InputLabel>
-                  <Select
-                    {...field}
-                    multiple
-                    labelId="genre-multi-select-label"
-                    label="Genres"
-                    input={<OutlinedInput label="Genres" />}
-                    renderValue={(selected) =>
-                      selected
-                        .map((genreId) => genres.find((genre) => genre.id === genreId)?.name)
-                        .filter(Boolean)
-                        .join(', ')
-                    }
-                  >
-                    {genres.map((genre) => (
-                      <MenuItem key={genre.id} value={genre.id}>
-                        {genre.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {errors.genreIds && <FormHelperText>{errors.genreIds.message}</FormHelperText>}
-                </FormControl>
-              )}
-            />
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems={{ md: 'flex-end' }}>
+              <Controller
+                name="genreIds"
+                control={control}
+                rules={{
+                  validate: (value) =>
+                    (Array.isArray(value) && value.length > 0) || 'Select at least one genre',
+                }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={Boolean(errors.genreIds)}>
+                    <InputLabel id="genre-multi-select-label">Genres</InputLabel>
+                    <Select
+                      {...field}
+                      multiple
+                      labelId="genre-multi-select-label"
+                      label="Genres"
+                      input={<OutlinedInput label="Genres" />}
+                      renderValue={(selected) =>
+                        selected
+                          .map((genreId) => genres.find((genre) => genre.id === genreId)?.name)
+                          .filter(Boolean)
+                          .join(', ')
+                      }
+                    >
+                      {genres.map((genre) => (
+                        <MenuItem key={genre.id} value={genre.id}>
+                          {genre.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.genreIds && <FormHelperText>{errors.genreIds.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<BuildRoundedIcon />}
+                onClick={() => openReferenceDialog('genres')}
+              >
+                Manage
+              </Button>
+            </Stack>
 
             <Stack direction="row" spacing={1.5}>
               <Button
@@ -327,9 +371,15 @@ function GameFormPage({ mode }) {
           </Stack>
         </Box>
       </Stack>
+
+      <ReferenceManagerDialog
+        open={referenceDialogOpen}
+        entityType={referenceEntityType}
+        onClose={closeReferenceDialog}
+        onChanged={handleReferenceChanged}
+      />
     </Paper>
   );
 }
 
 export default GameFormPage;
-

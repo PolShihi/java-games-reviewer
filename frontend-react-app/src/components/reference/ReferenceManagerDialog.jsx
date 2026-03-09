@@ -253,6 +253,14 @@ function ReferenceManagerDialog({
       return false;
     }
 
+    if (entityType !== ENTITY_TYPES.GENRES) {
+      const foundedYear = toNullableNumber(form.foundedYear);
+      if (foundedYear !== null && foundedYear < 1900) {
+        setError('Founded year must be at least 1900.');
+        return false;
+      }
+    }
+
     setError(null);
     return true;
   };
@@ -374,7 +382,7 @@ function ReferenceManagerDialog({
                     type="number"
                     value={form.foundedYear ?? ''}
                     onChange={handleFieldChange('foundedYear')}
-                    slotProps = {{htmlInput : { min: 1900 }}}
+                    slotProps={{ htmlInput: { min: 1900 } }}
                     sx={{ minWidth: 150 }}
                   />
                 )}
