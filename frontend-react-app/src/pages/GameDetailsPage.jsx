@@ -27,6 +27,7 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import AddRequirementDialog from '../components/system-requirements/AddRequirementDialog';
 import GameService from '../services/GameService';
 import log from '../services/Logger';
+import SystemRequirementService from '../services/SystemRequirementService';
 
 function GameDetailsPage() {
   const { id } = useParams();
@@ -37,6 +38,7 @@ function GameDetailsPage() {
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [requirementDialogOpen, setRequirementDialogOpen] = useState(false);
+  const [selectedRequirement, setSelectedRequirement] = useState(null);
 
   const loadGame = useCallback(async () => {
     if (!id) {
@@ -81,6 +83,36 @@ function GameDetailsPage() {
       setError(deleteError.message || 'Failed to delete game.');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleOpenCreateRequirementDialog = () => {
+    setSelectedRequirement(null);
+    setRequirementDialogOpen(true);
+  };
+
+  const handleOpenEditRequirementDialog = (requirement) => {
+    setSelectedRequirement(requirement);
+    setRequirementDialogOpen(true);
+  };
+
+  const handleCloseRequirementDialog = () => {
+    setRequirementDialogOpen(false);
+    setSelectedRequirement(null);
+  };
+
+  const handleDeleteRequirement = async (requirementId) => {
+    const confirmed = window.confirm('Delete this system requirement?');
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await SystemRequirementService.delete(requirementId);
+      await loadGame();
+    } catch (deleteError) {
+      log.error('Failed to delete system requirement:', deleteError);
+      setError(deleteError.message || 'Failed to delete system requirement.');
     }
   };
 
@@ -197,7 +229,7 @@ function GameDetailsPage() {
             <Button
               variant="outlined"
               startIcon={<AddCircleOutlineRoundedIcon />}
-              onClick={() => setRequirementDialogOpen(true)}
+              onClick={handleOpenCreateRequirementDialog}
             >
               Add requirement
             </Button>
@@ -215,6 +247,7 @@ function GameDetailsPage() {
                     <TableCell>CPU (GHz)</TableCell>
                     <TableCell>GPU (TFLOPS)</TableCell>
                     <TableCell>VRAM (GB)</TableCell>
+                    <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -226,6 +259,27 @@ function GameDetailsPage() {
                       <TableCell>{item.cpuGhz ?? '-'}</TableCell>
                       <TableCell>{item.gpuTflops ?? '-'}</TableCell>
                       <TableCell>{item.vramGb ?? '-'}</TableCell>
+                      <TableCell align="right">
+                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<EditRoundedIcon />}
+                            onClick={() => handleOpenEditRequirementDialog(item)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            startIcon={<DeleteOutlineRoundedIcon />}
+                            onClick={() => handleDeleteRequirement(item.id)}
+                          >
+                            Delete
+                          </Button>
+                        </Stack>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -267,7 +321,8 @@ function GameDetailsPage() {
       <AddRequirementDialog
         open={requirementDialogOpen}
         gameId={game.id}
-        onClose={() => setRequirementDialogOpen(false)}
+        initialRequirement={selectedRequirement}
+        onClose={handleCloseRequirementDialog}
         onCreated={loadGame}
       />
     </Stack>

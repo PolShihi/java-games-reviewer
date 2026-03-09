@@ -35,11 +35,18 @@ const toNullableNumber = (value) => {
   return Number.isNaN(parsed) ? null : parsed;
 };
 
-function AddRequirementDialog({ open, gameId, onClose, onCreated }) {
+function AddRequirementDialog({
+  open,
+  gameId,
+  initialRequirement = null,
+  onClose,
+  onCreated,
+}) {
   const [types, setTypes] = useState([]);
   const [form, setForm] = useState(DEFAULT_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const isEditMode = Boolean(initialRequirement?.id);
 
   const canSubmit = useMemo(() => {
     return Boolean(
@@ -67,6 +74,26 @@ function AddRequirementDialog({ open, gameId, onClose, onCreated }) {
 
     loadTypes();
   }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (!initialRequirement) {
+      setForm(DEFAULT_FORM);
+      return;
+    }
+
+    setForm({
+      systemRequirementTypeId: initialRequirement.type?.id ?? '',
+      storageGb: initialRequirement.storageGb ?? '',
+      ramGb: initialRequirement.ramGb ?? '',
+      cpuGhz: initialRequirement.cpuGhz ?? '',
+      gpuTflops: initialRequirement.gpuTflops ?? '',
+      vramGb: initialRequirement.vramGb ?? '',
+    });
+  }, [initialRequirement, open]);
 
   const resetState = () => {
     setForm(DEFAULT_FORM);
@@ -122,15 +149,19 @@ function AddRequirementDialog({ open, gameId, onClose, onCreated }) {
         vramGb: toNullableNumber(form.vramGb),
       };
 
-      await SystemRequirementService.create(payload);
+      if (isEditMode) {
+        await SystemRequirementService.update(initialRequirement.id, payload);
+      } else {
+        await SystemRequirementService.create(payload);
+      }
       resetState();
       if (onCreated) {
         await onCreated();
       }
       onClose();
     } catch (submitError) {
-      log.error('Failed to create system requirement:', submitError);
-      setError(submitError.message || 'Failed to create system requirement.');
+      log.error('Failed to save system requirement:', submitError);
+      setError(submitError.message || 'Failed to save system requirement.');
     } finally {
       setSubmitting(false);
     }
@@ -138,7 +169,7 @@ function AddRequirementDialog({ open, gameId, onClose, onCreated }) {
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Add System Requirement</DialogTitle>
+      <DialogTitle>{isEditMode ? 'Edit System Requirement' : 'Add System Requirement'}</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={2} sx={{ mt: 0.5 }}>
           {error && <Alert severity="error">{error}</Alert>}
@@ -212,7 +243,7 @@ function AddRequirementDialog({ open, gameId, onClose, onCreated }) {
           Cancel
         </Button>
         <Button variant="contained" onClick={handleSubmit} disabled={submitting || !canSubmit}>
-          Add
+          {isEditMode ? 'Save' : 'Add'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -220,4 +251,3 @@ function AddRequirementDialog({ open, gameId, onClose, onCreated }) {
 }
 
 export default AddRequirementDialog;
-
