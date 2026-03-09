@@ -275,8 +275,7 @@ const GamesPage = () => {
               type="number"
               value={filters.yearFrom}
               onChange={handleTextFilterChange('yearFrom')}
-              htmlInput={{ min: 1950 }}
-              //inputProps={{ min: 1950 }}
+              slotProps = {{htmlInput : { min: 1950 }}}
               sx={{ minWidth: 140 }}
             />
 
@@ -285,8 +284,7 @@ const GamesPage = () => {
               type="number"
               value={filters.yearTo}
               onChange={handleTextFilterChange('yearTo')}
-              //inputProps={{ min: 1950 }}
-              htmlInput={{ min: 1950 }}
+              slotProps = {{htmlInput : { min: 1950 }}}
               sx={{ minWidth: 140 }}
             />
 
