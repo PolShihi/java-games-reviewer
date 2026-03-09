@@ -14,8 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:3000",  // React default
                         "http://localhost:4200",  // Angular default
                         "http://localhost:5173",  // Vite default
-                        "http://localhost:8081",   // Alternative frontend port
-                        "http://localhost:8088"
+                        "http://localhost:8081"   // Alternative frontend port
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
