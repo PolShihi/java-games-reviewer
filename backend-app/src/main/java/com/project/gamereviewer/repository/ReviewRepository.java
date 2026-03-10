@@ -19,6 +19,8 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     Optional<Review> findByGameIdAndMediaOutletId(Integer gameId, Integer mediaOutletId);
     
     boolean existsByGameIdAndMediaOutletId(Integer gameId, Integer mediaOutletId);
+
+    boolean existsByGameIdAndMediaOutletIdAndIdNot(Integer gameId, Integer mediaOutletId, Integer id);
     
     void deleteByGameId(Integer gameId);
 }

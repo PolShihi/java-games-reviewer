@@ -76,7 +76,22 @@ public class ReviewService {
     public ReviewResponse updateReview(Integer id, ReviewCreateRequest request) {
         Review review = reviewRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(RESOURSE_NAME, id));
+
+        if (reviewRepository.existsByGameIdAndMediaOutletIdAndIdNot(
+                request.gameId(), request.mediaOutletId(), id)) {
+            throw new DuplicateResourceException(
+                REVIEW_ON_SAME_GAME_BY_SAME_MEDIA_OUTLET_EXCEPTION_MESSAGE
+            );
+        }
+
+        Game game = gameRepository.findById(request.gameId())
+            .orElseThrow(() -> new ResourceNotFoundException(GameService.RESOURSE_NAME, request.gameId()));
+
+        MediaOutlet mediaOutlet = mediaOutletRepository.findById(request.mediaOutletId())
+            .orElseThrow(() -> new ResourceNotFoundException(MediaOutletService.RESOURSE_NAME, request.mediaOutletId()));
         
+        review.setGame(game);
+        review.setMediaOutlet(mediaOutlet);
         review.setScore(request.score());
         review.setSummary(request.summary());
         

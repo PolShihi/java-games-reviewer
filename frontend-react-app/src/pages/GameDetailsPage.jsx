@@ -24,9 +24,11 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import AddReviewDialog from '../components/reviews/AddReviewDialog';
 import AddRequirementDialog from '../components/system-requirements/AddRequirementDialog';
 import GameService from '../services/GameService';
 import log from '../services/Logger';
+import ReviewService from '../services/ReviewService';
 import SystemRequirementService from '../services/SystemRequirementService';
 
 function GameDetailsPage() {
@@ -39,6 +41,8 @@ function GameDetailsPage() {
   const [deleting, setDeleting] = useState(false);
   const [requirementDialogOpen, setRequirementDialogOpen] = useState(false);
   const [selectedRequirement, setSelectedRequirement] = useState(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
 
   const loadGame = useCallback(async () => {
     if (!id) {
@@ -113,6 +117,36 @@ function GameDetailsPage() {
     } catch (deleteError) {
       log.error('Failed to delete system requirement:', deleteError);
       setError(deleteError.message || 'Failed to delete system requirement.');
+    }
+  };
+
+  const handleOpenCreateReviewDialog = () => {
+    setSelectedReview(null);
+    setReviewDialogOpen(true);
+  };
+
+  const handleOpenEditReviewDialog = (review) => {
+    setSelectedReview(review);
+    setReviewDialogOpen(true);
+  };
+
+  const handleCloseReviewDialog = () => {
+    setReviewDialogOpen(false);
+    setSelectedReview(null);
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    const confirmed = window.confirm('Delete this review?');
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await ReviewService.delete(reviewId);
+      await loadGame();
+    } catch (deleteError) {
+      log.error('Failed to delete review:', deleteError);
+      setError(deleteError.message || 'Failed to delete review.');
     }
   };
 
@@ -291,7 +325,16 @@ function GameDetailsPage() {
 
       <Paper sx={{ p: 2.5 }}>
         <Stack spacing={1.5}>
-          <Typography variant="h6">Reviews</Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ md: 'center' }} spacing={1.5}>
+            <Typography variant="h6">Reviews</Typography>
+            <Button
+              variant="outlined"
+              startIcon={<AddCircleOutlineRoundedIcon />}
+              onClick={handleOpenCreateReviewDialog}
+            >
+              Add review
+            </Button>
+          </Stack>
           {(game.reviews || []).length === 0 ? (
             <Alert severity="info">No reviews added yet.</Alert>
           ) : (
@@ -309,6 +352,25 @@ function GameDetailsPage() {
                       <Typography variant="body2" color="text.secondary">
                         {review.summary || 'No summary.'}
                       </Typography>
+                      <Stack direction="row" spacing={1}>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<EditRoundedIcon />}
+                          onClick={() => handleOpenEditReviewDialog(review)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="error"
+                          startIcon={<DeleteOutlineRoundedIcon />}
+                          onClick={() => handleDeleteReview(review.id)}
+                        >
+                          Delete
+                        </Button>
+                      </Stack>
                     </Stack>
                   </CardContent>
                 </Card>
@@ -323,6 +385,13 @@ function GameDetailsPage() {
         gameId={game.id}
         initialRequirement={selectedRequirement}
         onClose={handleCloseRequirementDialog}
+        onCreated={loadGame}
+      />
+      <AddReviewDialog
+        open={reviewDialogOpen}
+        gameId={game.id}
+        initialReview={selectedReview}
+        onClose={handleCloseReviewDialog}
         onCreated={loadGame}
       />
     </Stack>
