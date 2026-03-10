@@ -31,6 +31,7 @@ import GameService from '../services/GameService';
 import GenreService from '../services/GenreService';
 import ProductionCompanyService from '../services/ProductionCompanyService';
 import log from '../services/Logger';
+import { fetchAllPageContent } from '../utils/fetchAllPageContent';
 import { normalizePageResponse } from '../utils/pageResponse';
 
 const EMPTY_FILTERS = Object.freeze({
@@ -102,14 +103,14 @@ const GamesPage = () => {
 
   const fetchCompanies = useCallback(async () => {
     try {
-      const response = await ProductionCompanyService.getAll({
-        page: 0,
-        size: 200,
-        sortBy: 'name',
-        sortDirection: 'ASC',
-      });
-      const pageData = normalizePageResponse(response.data);
-      setCompanies(pageData.content);
+      const allCompanies = await fetchAllPageContent(
+        (params) => ProductionCompanyService.getAll(params),
+        {
+          sortBy: 'name',
+          sortDirection: 'ASC',
+        }
+      );
+      setCompanies(allCompanies);
     } catch (err) {
       log.warn('Failed to load companies for filters:', err);
     }
@@ -275,8 +276,7 @@ const GamesPage = () => {
               type="number"
               value={filters.yearFrom}
               onChange={handleTextFilterChange('yearFrom')}
-              htmlInput={{ min: 1950 }}
-              //inputProps={{ min: 1950 }}
+              slotProps = {{htmlInput : { min: 1950 }}}
               sx={{ minWidth: 140 }}
             />
 
@@ -285,8 +285,7 @@ const GamesPage = () => {
               type="number"
               value={filters.yearTo}
               onChange={handleTextFilterChange('yearTo')}
-              //inputProps={{ min: 1950 }}
-              htmlInput={{ min: 1950 }}
+              slotProps = {{htmlInput : { min: 1950 }}}
               sx={{ minWidth: 140 }}
             />
 
@@ -472,7 +471,7 @@ const GamesPage = () => {
             onPageChange={handleChangePage}
             rowsPerPage={pageSize}
             onRowsPerPageChange={handleChangePageSize}
-            rowsPerPageOptions={[5, 10, 20, 50]}
+            rowsPerPageOptions={[1, 5, 10, 20, 50]}
           />
         </TableContainer>
       )}
