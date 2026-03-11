@@ -1,4 +1,77 @@
 <section class="page">
-  <h1>{{ mode === 'edit' ? 'Edit Game' : 'Create Game' }}</h1>
-  <p>Game form will appear here.</p>
+  <mat-card *ngIf="loading" class="state state-loading">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  </mat-card>
+
+  <mat-card *ngIf="!loading" class="form-card">
+    <div class="header">
+      <h1>{{ titleLabel }}</h1>
+      <p>Fill in the game data and save changes.</p>
+    </div>
+
+    <div *ngIf="submitError" class="error-banner">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <span>{{ submitError }}</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title" />
+          <mat-error *ngIf="getFieldError('title')">{{ getFieldError('title') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Release year</mat-label>
+          <input matInput type="number" min="1950" formControlName="releaseYear" />
+          <mat-error *ngIf="getFieldError('releaseYear')">{{ getFieldError('releaseYear') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Description</mat-label>
+          <textarea matInput rows="4" formControlName="description"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Developer</mat-label>
+          <mat-select formControlName="developerId">
+            <mat-option [value]="null">None</mat-option>
+            <mat-option *ngFor="let company of companies" [value]="company.id">
+              {{ company.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Publisher</mat-label>
+          <mat-select formControlName="publisherId">
+            <mat-option [value]="null">None</mat-option>
+            <mat-option *ngFor="let company of companies" [value]="company.id">
+              {{ company.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Genres</mat-label>
+          <mat-select formControlName="genreIds" multiple>
+            <mat-option *ngFor="let genre of genres" [value]="genre.id">
+              {{ genre.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="getFieldError('genreIds')">{{ getFieldError('genreIds') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="actions">
+        <button type="button" mat-stroked-button color="primary" (click)="cancel()" [disabled]="submitting">
+          Cancel
+        </button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="submitting">
+          {{ mode === 'edit' ? 'Save changes' : 'Create game' }}
+        </button>
+      </div>
+    </form>
+  </mat-card>
 </section>
