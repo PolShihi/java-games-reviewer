@@ -45,6 +45,18 @@ const EMPTY_FILTERS = Object.freeze({
   ratingTo: '',
 });
 
+const buildFilterParams = (filters, pagingAndSorting) => ({
+  ...pagingAndSorting,
+  title: filters.title || undefined,
+  yearFrom: filters.yearFrom ? Number(filters.yearFrom) : undefined,
+  yearTo: filters.yearTo ? Number(filters.yearTo) : undefined,
+  genreIds: filters.genreIds.length ? filters.genreIds.join(',') : undefined,
+  developerId: filters.developerId ? Number(filters.developerId) : undefined,
+  publisherId: filters.publisherId ? Number(filters.publisherId) : undefined,
+  ratingFrom: filters.ratingFrom ? Number(filters.ratingFrom) : undefined,
+  ratingTo: filters.ratingTo ? Number(filters.ratingTo) : undefined,
+});
+
 const GamesPage = () => {
   const navigate = useNavigate();
 
@@ -127,24 +139,9 @@ const GamesPage = () => {
         sortDirection,
       };
 
-      let response;
-      if (hasActiveFilters) {
-        const filterParams = {
-          ...pagingAndSorting,
-          title: appliedFilters.title || undefined,
-          yearFrom: appliedFilters.yearFrom ? Number(appliedFilters.yearFrom) : undefined,
-          yearTo: appliedFilters.yearTo ? Number(appliedFilters.yearTo) : undefined,
-          genreIds: appliedFilters.genreIds.length ? appliedFilters.genreIds.join(',') : undefined,
-          developerId: appliedFilters.developerId ? Number(appliedFilters.developerId) : undefined,
-          publisherId: appliedFilters.publisherId ? Number(appliedFilters.publisherId) : undefined,
-          ratingFrom: appliedFilters.ratingFrom ? Number(appliedFilters.ratingFrom) : undefined,
-          ratingTo: appliedFilters.ratingTo ? Number(appliedFilters.ratingTo) : undefined,
-        };
-
-        response = await GameService.filter(filterParams);
-      } else {
-        response = await GameService.getAll(pagingAndSorting);
-      }
+      const response = hasActiveFilters
+        ? await GameService.filter(buildFilterParams(appliedFilters, pagingAndSorting))
+        : await GameService.getAll(pagingAndSorting);
 
       const pageData = normalizePageResponse(response.data);
 
@@ -276,7 +273,7 @@ const GamesPage = () => {
               type="number"
               value={filters.yearFrom}
               onChange={handleTextFilterChange('yearFrom')}
-              slotProps = {{htmlInput : { min: 1950 }}}
+              slotProps={{ htmlInput: { min: 1950 } }}
               sx={{ minWidth: 140 }}
             />
 
@@ -285,7 +282,7 @@ const GamesPage = () => {
               type="number"
               value={filters.yearTo}
               onChange={handleTextFilterChange('yearTo')}
-              slotProps = {{htmlInput : { min: 1950 }}}
+              slotProps={{ htmlInput: { min: 1950 } }}
               sx={{ minWidth: 140 }}
             />
 

@@ -18,6 +18,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import { Controller, useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import ReferenceManagerDialog from '../components/reference/ReferenceManagerDialog';
@@ -43,6 +44,17 @@ const toNullableNumber = (value) => {
 
   const parsed = Number(value);
   return Number.isNaN(parsed) ? null : parsed;
+};
+
+const formatGenreNames = (selected, genres) => {
+  if (!Array.isArray(selected) || selected.length === 0) {
+    return '';
+  }
+
+  return selected
+    .map((genreId) => genres.find((genre) => genre.id === genreId)?.name)
+    .filter(Boolean)
+    .join(', ');
 };
 
 function GameFormPage({ mode }) {
@@ -323,12 +335,7 @@ function GameFormPage({ mode }) {
                       labelId="genre-multi-select-label"
                       label="Genres"
                       input={<OutlinedInput label="Genres" />}
-                      renderValue={(selected) =>
-                        selected
-                          .map((genreId) => genres.find((genre) => genre.id === genreId)?.name)
-                          .filter(Boolean)
-                          .join(', ')
-                      }
+                      renderValue={(selected) => formatGenreNames(selected, genres)}
                     >
                       {genres.map((genre) => (
                         <MenuItem key={genre.id} value={genre.id}>
@@ -383,3 +390,7 @@ function GameFormPage({ mode }) {
 }
 
 export default GameFormPage;
+
+GameFormPage.propTypes = {
+  mode: PropTypes.string,
+};

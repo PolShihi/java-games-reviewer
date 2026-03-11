@@ -73,7 +73,7 @@ function GameDetailsPage() {
       return;
     }
 
-    const confirmed = window.confirm('Delete this game? This action cannot be undone.');
+    const confirmed = globalThis.confirm('Delete this game? This action cannot be undone.');
     if (!confirmed) {
       return;
     }
@@ -106,7 +106,7 @@ function GameDetailsPage() {
   };
 
   const handleDeleteRequirement = async (requirementId) => {
-    const confirmed = window.confirm('Delete this system requirement?');
+    const confirmed = globalThis.confirm('Delete this system requirement?');
     if (!confirmed) {
       return;
     }
@@ -136,7 +136,7 @@ function GameDetailsPage() {
   };
 
   const handleDeleteReview = async (reviewId) => {
-    const confirmed = window.confirm('Delete this review?');
+    const confirmed = globalThis.confirm('Delete this review?');
     if (!confirmed) {
       return;
     }

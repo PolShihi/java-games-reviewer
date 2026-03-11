@@ -24,6 +24,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import CompanyTypeService from '../../services/CompanyTypeService';
 import GenreService from '../../services/GenreService';
@@ -312,7 +313,7 @@ function ReferenceManagerDialog({
   };
 
   const handleDelete = async (rowId, rowName) => {
-    const confirmed = window.confirm(`Delete "${rowName}"?`);
+    const confirmed = globalThis.confirm(`Delete "${rowName}"?`);
     if (!confirmed) {
       return;
     }
@@ -508,3 +509,10 @@ function ReferenceManagerDialog({
 }
 
 export default ReferenceManagerDialog;
+
+ReferenceManagerDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  entityType: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onChanged: PropTypes.func,
+};
