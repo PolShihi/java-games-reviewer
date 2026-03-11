@@ -2,16 +2,16 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { PageResponse } from '../models/page-response';
 import { normalizePageResponse } from './normalize-page-response';
 
-export const fetchAllPageContent = async <T>(
-  fetchPage: (params: Record<string, unknown>) => Observable<PageResponse<T> | T[]>,
-  baseParams: Record<string, unknown> = {}
+export const fetchAllPageContent = async <T, P extends Record<string, unknown>>(
+  fetchPage: (params: P) => Observable<PageResponse<T> | T[]>,
+  baseParams: P
 ): Promise<T[]> => {
   const firstResponse = await firstValueFrom(
     fetchPage({
       ...baseParams,
       page: 0,
       size: 1,
-    })
+    } as P)
   );
   const firstPage = normalizePageResponse(firstResponse);
 
@@ -24,7 +24,7 @@ export const fetchAllPageContent = async <T>(
       ...baseParams,
       page: 0,
       size: firstPage.totalElements,
-    })
+    } as P)
   );
   const secondPage = normalizePageResponse(secondResponse);
 

@@ -1,0 +1,9 @@
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-game-details-page',
+  standalone: true,
+  templateUrl: './game-details-page.component.html',
+  styleUrl: './game-details-page.component.scss',
+})
+export class GameDetailsPageComponent {}
