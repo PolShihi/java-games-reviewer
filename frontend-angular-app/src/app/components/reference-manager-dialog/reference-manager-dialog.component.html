@@ -1,0 +1,120 @@
+<h2 mat-dialog-title>{{ label }} manager</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div *ngIf="error" class="error-banner">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <section class="form-card">
+    <h3>{{ editingId ? 'Edit record' : 'Create record' }}</h3>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Name</mat-label>
+        <input matInput [formControl]="form.controls.name" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="entityType !== 'genres'" appearance="outline">
+        <mat-label>Website URL</mat-label>
+        <input matInput [formControl]="form.controls.websiteUrl" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="entityType !== 'genres'" appearance="outline">
+        <mat-label>Founded year</mat-label>
+        <input matInput type="number" min="1900" [formControl]="form.controls.foundedYear" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="entityType === 'production-companies'" appearance="outline">
+        <mat-label>CEO</mat-label>
+        <input matInput [formControl]="form.controls.ceo" />
+      </mat-form-field>
+
+      <mat-form-field *ngIf="entityType === 'production-companies'" appearance="outline">
+        <mat-label>Company type</mat-label>
+        <mat-select [formControl]="form.controls.companyTypeId">
+          <mat-option [value]="null">None</mat-option>
+          <mat-option *ngFor="let companyType of companyTypes" [value]="companyType.id">
+            {{ companyType.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-actions">
+      <button mat-flat-button color="primary" (click)="submit()" [disabled]="submitting">
+        {{ editingId ? 'Save' : 'Create' }}
+      </button>
+      <button mat-stroked-button color="primary" *ngIf="editingId" (click)="resetForm()" [disabled]="submitting">
+        Cancel edit
+      </button>
+    </div>
+  </section>
+
+  <section class="table-controls">
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="search" />
+    </mat-form-field>
+    <button mat-stroked-button color="primary" (click)="loadRows()" [disabled]="loading">
+      Refresh
+    </button>
+  </section>
+
+  <div *ngIf="loading" class="loading-row">Loading...</div>
+
+  <table mat-table [dataSource]="filteredRows" class="reference-table" *ngIf="!loading">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="websiteUrl" *ngIf="entityType !== 'genres'">
+      <th mat-header-cell *matHeaderCellDef>Website</th>
+      <td mat-cell *matCellDef="let row">{{ row.websiteUrl || '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="foundedYear" *ngIf="entityType !== 'genres'">
+      <th mat-header-cell *matHeaderCellDef>Founded</th>
+      <td mat-cell *matCellDef="let row">{{ row.foundedYear || '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="ceo" *ngIf="entityType === 'production-companies'">
+      <th mat-header-cell *matHeaderCellDef>CEO</th>
+      <td mat-cell *matCellDef="let row">{{ row.ceo || '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="companyType" *ngIf="entityType === 'production-companies'">
+      <th mat-header-cell *matHeaderCellDef>Company type</th>
+      <td mat-cell *matCellDef="let row">{{ row.companyTypeName || '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let row">
+        <button mat-icon-button (click)="editRow(row)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteRow(row)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <div class="empty-state" *ngIf="!loading && filteredRows.length === 0">
+    No records found.
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>

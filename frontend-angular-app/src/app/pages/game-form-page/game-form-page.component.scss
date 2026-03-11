@@ -36,6 +36,17 @@ p {
   grid-column: span 2;
 }
 
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.field-row.full {
+  grid-column: span 2;
+}
+
 .actions {
   margin-top: 20px;
   display: flex;
@@ -62,5 +73,11 @@ p {
 @media (max-width: 900px) {
   .form-grid .full {
     grid-column: span 1;
+  }
+
+  .field-row,
+  .field-row.full {
+    grid-column: span 1;
+    grid-template-columns: 1fr;
   }
 }

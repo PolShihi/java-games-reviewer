@@ -1,0 +1,72 @@
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-card {
+  padding: 16px;
+  background: #f7f9fc;
+  border-radius: 12px;
+}
+
+.form-card h3 {
+  margin: 0 0 12px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.form-grid .full {
+  grid-column: span 2;
+}
+
+.form-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.table-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.table-controls .full {
+  flex: 1;
+}
+
+.reference-table {
+  width: 100%;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff3f3;
+  color: #9f1c1c;
+}
+
+.empty-state {
+  padding: 12px;
+  color: #5b6774;
+  text-align: center;
+}
+
+.loading-row {
+  padding: 8px 0;
+  color: #5b6774;
+}
+
+@media (max-width: 900px) {
+  .form-grid .full {
+    grid-column: span 1;
+  }
+}

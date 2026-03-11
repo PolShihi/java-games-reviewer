@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiError } from '../../core/http/api-error';
@@ -17,6 +18,7 @@ import { ProductionCompanyService } from '../../core/services/production-company
 import { Genre } from '../../core/models/genre';
 import { ProductionCompany } from '../../core/models/production-company';
 import { fetchAllPageContent } from '../../core/utils/fetch-all-page-content';
+import { ReferenceManagerDialogComponent, ReferenceEntityType } from '../../components/reference-manager-dialog/reference-manager-dialog.component';
 
 @Component({
   selector: 'app-game-form-page',
@@ -31,6 +33,7 @@ import { fetchAllPageContent } from '../../core/utils/fetch-all-page-content';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    MatDialogModule,
   ],
   templateUrl: './game-form-page.component.html',
   styleUrl: './game-form-page.component.scss',
@@ -44,6 +47,7 @@ export class GameFormPageComponent implements OnInit {
   private readonly companyService = inject(ProductionCompanyService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly dialog = inject(MatDialog);
 
   readonly mode = (this.route.snapshot.data['mode'] as 'create' | 'edit') ?? 'create';
   readonly gameId = this.route.snapshot.paramMap.get('id');
@@ -93,6 +97,19 @@ export class GameFormPageComponent implements OnInit {
     ]);
     this.genres = Array.isArray(genresResponse) ? genresResponse : [];
     this.companies = companies;
+  }
+
+  openReferenceDialog(entityType: ReferenceEntityType) {
+    const dialogRef = this.dialog.open(ReferenceManagerDialogComponent, {
+      width: '960px',
+      data: { entityType },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.changed) {
+        this.loadReferenceData();
+      }
+    });
   }
 
   private async loadGame(): Promise<void> {
