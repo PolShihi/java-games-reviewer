@@ -1,17 +1,21 @@
 <h2 mat-dialog-title>{{ title }}</h2>
 
 <mat-dialog-content class="dialog-content">
-  <div *ngIf="error" class="error-banner">
-    {{ error }}
-  </div>
+  @if (error) {
+    <div class="error-banner">
+      {{ error }}
+    </div>
+  }
 
   <form [formGroup]="form" class="form-grid">
     <mat-form-field appearance="outline" class="full">
       <mat-label>Requirement type</mat-label>
       <mat-select formControlName="systemRequirementTypeId">
-        <mat-option *ngFor="let type of types" [value]="type.id">
-          {{ type.name }}
-        </mat-option>
+        @for (type of types; track type.id) {
+          <mat-option [value]="type.id">
+            {{ type.name }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
 

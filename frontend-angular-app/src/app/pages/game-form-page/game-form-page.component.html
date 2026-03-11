@@ -1,31 +1,40 @@
 <section class="page">
-  <mat-card *ngIf="loading" class="state state-loading">
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  </mat-card>
+  @if (loading) {
+    <mat-card class="state state-loading">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    </mat-card>
+  }
 
-  <mat-card *ngIf="!loading" class="form-card">
+  @if (!loading) {
+  <mat-card class="form-card">
     <div class="header">
       <h1>{{ titleLabel }}</h1>
       <p>Fill in the game data and save changes.</p>
     </div>
 
-    <div *ngIf="submitError" class="error-banner">
-      <mat-icon color="warn">error_outline</mat-icon>
-      <span>{{ submitError }}</span>
-    </div>
+    @if (submitError) {
+      <div class="error-banner">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <span>{{ submitError }}</span>
+      </div>
+    }
 
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="form-grid">
         <mat-form-field appearance="outline" class="full">
           <mat-label>Title</mat-label>
           <input matInput formControlName="title" />
-          <mat-error *ngIf="getFieldError('title')">{{ getFieldError('title') }}</mat-error>
+          @if (getFieldError('title')) {
+            <mat-error>{{ getFieldError('title') }}</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Release year</mat-label>
           <input matInput type="number" min="1950" formControlName="releaseYear" />
-          <mat-error *ngIf="getFieldError('releaseYear')">{{ getFieldError('releaseYear') }}</mat-error>
+          @if (getFieldError('releaseYear')) {
+            <mat-error>{{ getFieldError('releaseYear') }}</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full">
@@ -38,9 +47,11 @@
             <mat-label>Developer</mat-label>
             <mat-select formControlName="developerId">
               <mat-option [value]="null">None</mat-option>
-              <mat-option *ngFor="let company of companies" [value]="company.id">
-                {{ company.name }}
-              </mat-option>
+              @for (company of companies; track company.id) {
+                <mat-option [value]="company.id">
+                  {{ company.name }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
           <button mat-stroked-button color="primary" type="button" (click)="openReferenceDialog('production-companies')">
@@ -54,9 +65,11 @@
             <mat-label>Publisher</mat-label>
             <mat-select formControlName="publisherId">
               <mat-option [value]="null">None</mat-option>
-              <mat-option *ngFor="let company of companies" [value]="company.id">
-                {{ company.name }}
-              </mat-option>
+              @for (company of companies; track company.id) {
+                <mat-option [value]="company.id">
+                  {{ company.name }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
           <button mat-stroked-button color="primary" type="button" (click)="openReferenceDialog('production-companies')">
@@ -69,11 +82,15 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>Genres</mat-label>
             <mat-select formControlName="genreIds" multiple>
-              <mat-option *ngFor="let genre of genres" [value]="genre.id">
-                {{ genre.name }}
-              </mat-option>
+              @for (genre of genres; track genre.id) {
+                <mat-option [value]="genre.id">
+                  {{ genre.name }}
+                </mat-option>
+              }
             </mat-select>
-            <mat-error *ngIf="getFieldError('genreIds')">{{ getFieldError('genreIds') }}</mat-error>
+            @if (getFieldError('genreIds')) {
+              <mat-error>{{ getFieldError('genreIds') }}</mat-error>
+            }
           </mat-form-field>
           <button mat-stroked-button color="primary" type="button" (click)="openReferenceDialog('genres')">
             <mat-icon>build</mat-icon>
@@ -92,4 +109,5 @@
       </div>
     </form>
   </mat-card>
+  }
 </section>

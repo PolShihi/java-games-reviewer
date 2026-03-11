@@ -1,28 +1,33 @@
 <section class="page">
-  <mat-card *ngIf="loading" class="state">
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  </mat-card>
+  @if (loading) {
+    <mat-card class="state">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    </mat-card>
+  }
 
-  <mat-card *ngIf="error" class="state error-state">
-    <mat-icon color="warn">error_outline</mat-icon>
-    <span>{{ error }}</span>
-    <div class="state-actions">
-      <button mat-flat-button color="primary" (click)="loadGame()">Retry</button>
-      <button mat-stroked-button color="primary" routerLink="/">Back to Games</button>
-    </div>
-  </mat-card>
+  @if (error) {
+    <mat-card class="state error-state">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <span>{{ error }}</span>
+      <div class="state-actions">
+        <button mat-flat-button color="primary" (click)="loadGame()">Retry</button>
+        <button mat-stroked-button color="primary" routerLink="/">Back to Games</button>
+      </div>
+    </mat-card>
+  }
 
-  <ng-container *ngIf="!loading && !error && game">
+  @if (!loading && !error && game) {
     <div class="page-header">
       <div>
         <h1>{{ game.title }}</h1>
         <p>Release year: {{ game.releaseYear || '-' }}</p>
         <p class="rating">
           <mat-icon>star</mat-icon>
-          <span *ngIf="game.averageRating !== null && game.averageRating !== undefined; else noRating">
-            {{ game.averageRating | number: '1.0-0' }}/100
-          </span>
-          <ng-template #noRating>Rating: N/A</ng-template>
+          @if (game.averageRating !== null && game.averageRating !== undefined) {
+            <span>{{ game.averageRating | number: '1.0-0' }}/100</span>
+          } @else {
+            <span>Rating: N/A</span>
+          }
         </p>
       </div>
       <div class="header-actions">
@@ -38,7 +43,9 @@
       <p class="muted">Developer: {{ game.developer?.name || '-' }}</p>
       <p class="muted">Publisher: {{ game.publisher?.name || '-' }}</p>
       <mat-chip-set>
-        <mat-chip *ngFor="let genre of game.genres" variant="outlined">{{ genre.name }}</mat-chip>
+        @for (genre of game.genres; track genre.id) {
+          <mat-chip variant="outlined">{{ genre.name }}</mat-chip>
+        }
       </mat-chip-set>
     </mat-card>
 
@@ -51,9 +58,12 @@
         </button>
       </div>
 
-      <div *ngIf="!game.systemRequirements.length" class="empty-state">No system requirements added yet.</div>
+      @if (!game.systemRequirements.length) {
+        <div class="empty-state">No system requirements added yet.</div>
+      }
 
-      <table mat-table [dataSource]="game.systemRequirements" *ngIf="game.systemRequirements.length">
+      @if (game.systemRequirements.length) {
+      <table mat-table [dataSource]="game.systemRequirements">
         <ng-container matColumnDef="type">
           <th mat-header-cell *matHeaderCellDef>Type</th>
           <td mat-cell *matCellDef="let row">{{ row.type?.name || '-' }}</td>
@@ -99,6 +109,7 @@
         <tr mat-header-row *matHeaderRowDef="requirementColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: requirementColumns"></tr>
       </table>
+      }
     </mat-card>
 
     <mat-card class="section-card">
@@ -110,25 +121,31 @@
         </button>
       </div>
 
-      <div *ngIf="!game.reviews.length" class="empty-state">No reviews added yet.</div>
+      @if (!game.reviews.length) {
+        <div class="empty-state">No reviews added yet.</div>
+      }
 
-      <div class="review-grid" *ngIf="game.reviews.length">
-        <mat-card *ngFor="let review of game.reviews" class="review-card">
-          <h3>{{ review.mediaOutlet?.name || 'Unknown outlet' }}</h3>
-          <p class="muted">Score: {{ review.score ?? '-' }}</p>
-          <p class="muted">{{ review.summary || 'No summary.' }}</p>
-          <div class="review-actions">
-            <button mat-stroked-button color="primary" (click)="openEditReview(review)">
-              <mat-icon>edit</mat-icon>
-              Edit
-            </button>
-            <button mat-stroked-button color="warn" (click)="deleteReview(review.id)">
-              <mat-icon>delete</mat-icon>
-              Delete
-            </button>
-          </div>
-        </mat-card>
-      </div>
+      @if (game.reviews.length) {
+        <div class="review-grid">
+          @for (review of game.reviews; track review.id) {
+            <mat-card class="review-card">
+              <h3>{{ review.mediaOutlet?.name || 'Unknown outlet' }}</h3>
+              <p class="muted">Score: {{ review.score ?? '-' }}</p>
+              <p class="muted">{{ review.summary || 'No summary.' }}</p>
+              <div class="review-actions">
+                <button mat-stroked-button color="primary" (click)="openEditReview(review)">
+                  <mat-icon>edit</mat-icon>
+                  Edit
+                </button>
+                <button mat-stroked-button color="warn" (click)="deleteReview(review.id)">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </div>
+            </mat-card>
+          }
+        </div>
+      }
     </mat-card>
-  </ng-container>
+  }
 </section>
