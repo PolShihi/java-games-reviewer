@@ -1,0 +1,39 @@
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.form-grid .full {
+  grid-column: span 2;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.error-banner {
+  padding: 10px 12px;
+  background: #fff3f3;
+  color: #9f1c1c;
+  border-radius: 8px;
+}
+
+@media (max-width: 900px) {
+  .form-grid .full {
+    grid-column: span 1;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}

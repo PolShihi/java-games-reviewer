@@ -14,6 +14,8 @@ import { GameDetail } from '../../core/models/game';
 import { GameService } from '../../core/services/game.service';
 import { SystemRequirementService } from '../../core/services/system-requirement.service';
 import { SystemRequirementDialogComponent } from '../../components/system-requirement-dialog/system-requirement-dialog.component';
+import { ReviewService } from '../../core/services/review.service';
+import { ReviewDialogComponent } from '../../components/review-dialog/review-dialog.component';
 
 @Component({
   selector: 'app-game-details-page',
@@ -37,6 +39,7 @@ export class GameDetailsPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly gameService = inject(GameService);
   private readonly requirementService = inject(SystemRequirementService);
+  private readonly reviewService = inject(ReviewService);
   private readonly dialog = inject(MatDialog);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -149,6 +152,57 @@ export class GameDetailsPageComponent implements OnInit {
     } catch (error) {
       const apiError = error as ApiError;
       this.error = apiError?.message || 'Failed to delete system requirement.';
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  openAddReview() {
+    if (!this.game?.id) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ReviewDialogComponent, {
+      width: '600px',
+      data: { gameId: this.game.id },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.changed) {
+        this.loadGame();
+      }
+    });
+  }
+
+  openEditReview(review: any) {
+    if (!this.game?.id) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ReviewDialogComponent, {
+      width: '600px',
+      data: { gameId: this.game.id, review },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.changed) {
+        this.loadGame();
+      }
+    });
+  }
+
+  async deleteReview(reviewId: number) {
+    const confirmed = window.confirm('Delete this review?');
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await firstValueFrom(this.reviewService.delete(reviewId));
+      await this.loadGame();
+    } catch (error) {
+      const apiError = error as ApiError;
+      this.error = apiError?.message || 'Failed to delete review.';
     } finally {
       this.cdr.markForCheck();
     }
