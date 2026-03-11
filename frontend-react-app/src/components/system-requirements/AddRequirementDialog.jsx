@@ -12,6 +12,7 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import { useEffect, useMemo, useState } from 'react';
 import log from '../../services/Logger';
 import SystemRequirementService from '../../services/SystemRequirementService';
@@ -251,3 +252,11 @@ function AddRequirementDialog({
 }
 
 export default AddRequirementDialog;
+
+AddRequirementDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  gameId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  initialRequirement: PropTypes.object,
+  onClose: PropTypes.func.isRequired,
+  onCreated: PropTypes.func,
+};

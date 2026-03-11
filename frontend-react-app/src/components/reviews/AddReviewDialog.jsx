@@ -1,7 +1,6 @@
 import BuildRoundedIcon from '@mui/icons-material/BuildRounded';
 import {
   Alert,
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -14,6 +13,7 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import { useEffect, useMemo, useState } from 'react';
 import MediaOutletService from '../../services/MediaOutletService';
 import log from '../../services/Logger';
@@ -230,4 +230,12 @@ function AddReviewDialog({
 }
 
 export default AddReviewDialog;
+
+AddReviewDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  gameId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  initialReview: PropTypes.object,
+  onClose: PropTypes.func.isRequired,
+  onCreated: PropTypes.func,
+};
 
