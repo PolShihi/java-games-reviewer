@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div *ngIf="error" class="error-banner">
+    {{ error }}
+  </div>
+
+  <form [formGroup]="form" class="form-grid">
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Requirement type</mat-label>
+      <mat-select formControlName="systemRequirementTypeId">
+        <mat-option *ngFor="let type of types" [value]="type.id">
+          {{ type.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Storage (GB)</mat-label>
+      <input matInput type="number" min="1" formControlName="storageGb" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>RAM (GB)</mat-label>
+      <input matInput type="number" min="1" formControlName="ramGb" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>CPU (GHz)</mat-label>
+      <input matInput type="number" step="0.1" formControlName="cpuGhz" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>GPU (TFLOPS)</mat-label>
+      <input matInput type="number" step="0.01" formControlName="gpuTflops" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>VRAM (GB)</mat-label>
+      <input matInput type="number" formControlName="vramGb" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button color="primary" (click)="close()" [disabled]="submitting">Cancel</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="submitting">
+    {{ initialRequirement?.id ? 'Save' : 'Add' }}
+  </button>
+</mat-dialog-actions>
