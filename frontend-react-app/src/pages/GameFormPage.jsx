@@ -26,6 +26,7 @@ import GameService from '../services/GameService';
 import GenreService from '../services/GenreService';
 import log from '../services/Logger';
 import ProductionCompanyService from '../services/ProductionCompanyService';
+import { getApiErrorMessage } from '../utils/apiError';
 import { fetchAllPageContent } from '../utils/fetchAllPageContent';
 
 const DEFAULT_VALUES = {
@@ -175,7 +176,7 @@ function GameFormPage({ mode }) {
         const firstValidationMessage = Object.values(validationErrors)[0];
         setSubmitError(firstValidationMessage || 'Validation failed.');
       } else {
-        setSubmitError(error.message || 'Failed to save game. Please try again.');
+        setSubmitError(getApiErrorMessage(error, 'Failed to save game. Please try again.'));
       }
     }
   };

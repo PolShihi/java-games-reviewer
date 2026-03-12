@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from 'react';
 import log from '../../services/Logger';
 import SystemRequirementService from '../../services/SystemRequirementService';
 import SystemRequirementTypeService from '../../services/SystemRequirementTypeService';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 const DEFAULT_FORM = Object.freeze({
   systemRequirementTypeId: '',
@@ -202,7 +203,7 @@ function AddRequirementDialog({
       onClose();
     } catch (submitError) {
       log.error('Failed to save system requirement:', submitError);
-      setError(submitError.message || 'Failed to save system requirement.');
+      setError(getApiErrorMessage(submitError, 'Failed to save system requirement.'));
     } finally {
       setSubmitting(false);
     }

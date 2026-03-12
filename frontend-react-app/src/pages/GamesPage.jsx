@@ -31,6 +31,7 @@ import GameService from '../services/GameService';
 import GenreService from '../services/GenreService';
 import ProductionCompanyService from '../services/ProductionCompanyService';
 import log from '../services/Logger';
+import { getApiErrorMessage } from '../utils/apiError';
 import { fetchAllPageContent } from '../utils/fetchAllPageContent';
 import { normalizePageResponse } from '../utils/pageResponse';
 
@@ -150,7 +151,7 @@ const GamesPage = () => {
       setError(null);
     } catch (err) {
       log.error('Error fetching games:', err);
-      setError('Failed to load game list. Check backend connection and try again.');
+      setError(getApiErrorMessage(err, 'Failed to load game list. Check backend connection and try again.'));
     } finally {
       setLoading(false);
     }

@@ -35,3 +35,11 @@ export const toApiError = (error) => {
     });
 };
 
+export const getApiErrorMessage = (error, fallbackMessage) => {
+    const firstFieldError = error?.errors && typeof error.errors === 'object'
+        ? Object.values(error.errors)[0]
+        : null;
+
+    return firstFieldError || error?.message || fallbackMessage;
+};
+
