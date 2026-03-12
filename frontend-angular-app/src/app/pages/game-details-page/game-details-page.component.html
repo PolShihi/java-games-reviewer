@@ -1,4 +1,112 @@
 <section class="page">
-  <h1>Game Details</h1>
-  <p>Game details will appear here.</p>
+  <mat-card *ngIf="loading" class="state">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  </mat-card>
+
+  <mat-card *ngIf="error" class="state error-state">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <div class="state-actions">
+      <button mat-flat-button color="primary" (click)="loadGame()">Retry</button>
+      <button mat-stroked-button color="primary" routerLink="/">Back to Games</button>
+    </div>
+  </mat-card>
+
+  <ng-container *ngIf="!loading && !error && game">
+    <div class="page-header">
+      <div>
+        <h1>{{ game.title }}</h1>
+        <p>Release year: {{ game.releaseYear || '-' }}</p>
+        <p class="rating">
+          <mat-icon>star</mat-icon>
+          <span *ngIf="game.averageRating !== null && game.averageRating !== undefined; else noRating">
+            {{ game.averageRating | number: '1.0-0' }}/100
+          </span>
+          <ng-template #noRating>Rating: N/A</ng-template>
+        </p>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button color="primary" routerLink="/">Back</button>
+        <button mat-stroked-button color="primary" [routerLink]="['/games', game.id, 'edit']">Edit</button>
+        <button mat-flat-button color="warn" (click)="deleteGame()" [disabled]="deleting">Delete</button>
+      </div>
+    </div>
+
+    <mat-card class="section-card">
+      <h2>About</h2>
+      <p class="muted">{{ game.description || 'No description provided.' }}</p>
+      <p class="muted">Developer: {{ game.developer?.name || '-' }}</p>
+      <p class="muted">Publisher: {{ game.publisher?.name || '-' }}</p>
+      <mat-chip-set>
+        <mat-chip *ngFor="let genre of game.genres" variant="outlined">{{ genre.name }}</mat-chip>
+      </mat-chip-set>
+    </mat-card>
+
+    <mat-card class="section-card">
+      <div class="section-header">
+        <h2>System Requirements</h2>
+        <button mat-stroked-button color="primary" disabled>
+          <mat-icon>add_circle_outline</mat-icon>
+          Add requirement
+        </button>
+      </div>
+
+      <div *ngIf="!game.systemRequirements.length" class="empty-state">No system requirements added yet.</div>
+
+      <table mat-table [dataSource]="game.systemRequirements" *ngIf="game.systemRequirements.length">
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let row">{{ row.type?.name || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="storageGb">
+          <th mat-header-cell *matHeaderCellDef>Storage (GB)</th>
+          <td mat-cell *matCellDef="let row">{{ row.storageGb ?? '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="ramGb">
+          <th mat-header-cell *matHeaderCellDef>RAM (GB)</th>
+          <td mat-cell *matCellDef="let row">{{ row.ramGb ?? '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="cpuGhz">
+          <th mat-header-cell *matHeaderCellDef>CPU (GHz)</th>
+          <td mat-cell *matCellDef="let row">{{ row.cpuGhz ?? '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="gpuTflops">
+          <th mat-header-cell *matHeaderCellDef>GPU (TFLOPS)</th>
+          <td mat-cell *matCellDef="let row">{{ row.gpuTflops ?? '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="vramGb">
+          <th mat-header-cell *matHeaderCellDef>VRAM (GB)</th>
+          <td mat-cell *matCellDef="let row">{{ row.vramGb ?? '-' }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="requirementColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: requirementColumns"></tr>
+      </table>
+    </mat-card>
+
+    <mat-card class="section-card">
+      <div class="section-header">
+        <h2>Reviews</h2>
+        <button mat-stroked-button color="primary" disabled>
+          <mat-icon>add_circle_outline</mat-icon>
+          Add review
+        </button>
+      </div>
+
+      <div *ngIf="!game.reviews.length" class="empty-state">No reviews added yet.</div>
+
+      <div class="review-grid" *ngIf="game.reviews.length">
+        <mat-card *ngFor="let review of game.reviews" class="review-card">
+          <h3>{{ review.mediaOutlet?.name || 'Unknown outlet' }}</h3>
+          <p class="muted">Score: {{ review.score ?? '-' }}</p>
+          <p class="muted">{{ review.summary || 'No summary.' }}</p>
+        </mat-card>
+      </div>
+    </mat-card>
+  </ng-container>
 </section>
