@@ -1,0 +1,20 @@
+<div class="app-shell">
+  <mat-toolbar class="app-toolbar" color="primary">
+    <div class="toolbar-content">
+      <a class="brand" routerLink="/">
+        <mat-icon aria-hidden="true">sports_esports</mat-icon>
+        <span class="brand-text">Games Reviewer</span>
+      </a>
+      <a mat-flat-button color="accent" routerLink="/games/new">
+        <mat-icon aria-hidden="true">add_circle_outline</mat-icon>
+        Add Game
+      </a>
+    </div>
+  </mat-toolbar>
+
+  <main class="app-content">
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
