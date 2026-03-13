@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: games-reviewer-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d games_reviewer_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend-app
+      dockerfile: Dockerfile
+    container_name: games-reviewer-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SERVER_PORT: ${BACKEND_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    ports:
+      - "${BACKEND_PORT}:8088"
+
+  frontend-react:
+    build:
+      context: ./frontend-react-app
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:${BACKEND_PORT}/api/v1
+    container_name: games-reviewer-frontend-react
+    depends_on:
+      - backend
+    ports:
+      - "${REACT_PORT}:80"
+
+  frontend-angular:
+    build:
+      context: ./frontend-angular-app
+      dockerfile: Dockerfile
+    container_name: games-reviewer-frontend-angular
+    depends_on:
+      - backend
+    environment:
+      API_BASE_URL: http://localhost:${BACKEND_PORT}/api/v1
+      ENABLE_LOGS: "false"
+    ports:
+      - "${ANGULAR_PORT}:80"
+
+volumes:
+  db_data:
