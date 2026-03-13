@@ -1,7 +1,8 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { appConfig } from '../config/app-config';
 
-const isAbsoluteUrl = (url: string) => /^https?:\/\//i.test(url);
+const isAbsoluteUrl = (url: string) =>
+  url.startsWith('http://') || url.startsWith('https://');
 
 export const baseUrlInterceptor: HttpInterceptorFn = (req, next) => {
   if (isAbsoluteUrl(req.url)) {
