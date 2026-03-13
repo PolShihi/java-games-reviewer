@@ -129,10 +129,24 @@ export class ReferenceManagerDialogComponent implements OnInit {
 
     return this.rows.filter((row) => {
       const name = row.name?.toLowerCase?.() || '';
-      const website = (row as ReferenceRow).websiteUrl?.toLowerCase?.() || '';
-      const ceo = (row as ProductionCompany).ceo?.toLowerCase?.() || '';
+      const website = this.getWebsiteUrl(row);
+      const ceo = this.getCeo(row);
       return name.includes(query) || website.includes(query) || ceo.includes(query);
     });
+  }
+
+  private getWebsiteUrl(row: ReferenceRow): string {
+    if ('websiteUrl' in row && typeof row.websiteUrl === 'string') {
+      return row.websiteUrl.toLowerCase();
+    }
+    return '';
+  }
+
+  private getCeo(row: ReferenceRow): string {
+    if ('ceo' in row && typeof row.ceo === 'string') {
+      return row.ceo.toLowerCase();
+    }
+    return '';
   }
 
   async loadCompanyTypes() {
