@@ -7,11 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { firstValueFrom } from 'rxjs';
-import { ApiError } from '../../core/http/api-error';
 import { SystemRequirement } from '../../core/models/system-requirement';
 import { SystemRequirementType } from '../../core/models/system-requirement-type';
 import { SystemRequirementService } from '../../core/services/system-requirement.service';
 import { SystemRequirementTypeService } from '../../core/services/system-requirement-type.service';
+import { getApiErrorMessage } from '../../core/utils/validation-error';
+import { ApiError } from '../../core/http/api-error';
 
 export interface SystemRequirementDialogData {
   gameId: number;
@@ -123,8 +124,7 @@ export class SystemRequirementDialogComponent implements OnInit {
 
       this.dialogRef.close({ changed: true });
     } catch (error) {
-      const apiError = error as ApiError;
-      this.error = apiError?.message || 'Failed to save requirement.';
+      this.error = getApiErrorMessage(error, 'Failed to save requirement.');
     } finally {
       this.submitting = false;
     }

@@ -11,7 +11,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { firstValueFrom } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ApiError } from '../../core/http/api-error';
 import { CompanyType } from '../../core/models/company-type';
 import { Genre } from '../../core/models/genre';
 import { MediaOutlet } from '../../core/models/media-outlet';
@@ -21,6 +20,7 @@ import { GenreService } from '../../core/services/genre.service';
 import { MediaOutletService } from '../../core/services/media-outlet.service';
 import { ProductionCompanyService } from '../../core/services/production-company.service';
 import { fetchAllPageContent } from '../../core/utils/fetch-all-page-content';
+import { getApiErrorMessage } from '../../core/utils/validation-error';
 
 export type ReferenceEntityType = 'genres' | 'production-companies' | 'media-outlets';
 
@@ -172,8 +172,7 @@ export class ReferenceManagerDialogComponent implements OnInit {
         sortDirection: 'ASC' as const,
       });
     } catch (error) {
-      const apiError = error as ApiError;
-      this.error = apiError?.message || 'Failed to load data.';
+      this.error = getApiErrorMessage(error, 'Failed to load data.');
     } finally {
       this.loading = false;
     }
@@ -297,8 +296,7 @@ export class ReferenceManagerDialogComponent implements OnInit {
       this.resetForm();
       this.changed = true;
     } catch (error) {
-      const apiError = error as ApiError;
-      this.error = apiError?.message || 'Failed to save record.';
+      this.error = getApiErrorMessage(error, 'Failed to save record.');
     } finally {
       this.submitting = false;
     }
@@ -327,8 +325,7 @@ export class ReferenceManagerDialogComponent implements OnInit {
       await this.loadRows();
       this.changed = true;
     } catch (error) {
-      const apiError = error as ApiError;
-      this.error = apiError?.message || 'Failed to delete record.';
+      this.error = getApiErrorMessage(error, 'Failed to delete record.');
     } finally {
       this.submitting = false;
     }

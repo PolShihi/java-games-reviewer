@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from 'react';
 import log from '../../services/Logger';
 import SystemRequirementService from '../../services/SystemRequirementService';
 import SystemRequirementTypeService from '../../services/SystemRequirementTypeService';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 const DEFAULT_FORM = Object.freeze({
   systemRequirementTypeId: '',
@@ -34,6 +35,15 @@ const toNullableNumber = (value) => {
 
   const parsed = Number(value);
   return Number.isNaN(parsed) ? null : parsed;
+};
+
+const hasValidScale = (value, maxDecimals) => {
+  if (value === '' || value === null || value === undefined) {
+    return true;
+  }
+  const text = String(value);
+  const parts = text.split('.');
+  return parts.length < 2 || parts[1].length <= maxDecimals;
 };
 
 function AddRequirementDialog({
@@ -116,6 +126,9 @@ function AddRequirementDialog({
   const validate = () => {
     const storage = Number(form.storageGb);
     const ram = Number(form.ramGb);
+    const cpu = toNullableNumber(form.cpuGhz);
+    const gpu = toNullableNumber(form.gpuTflops);
+    const vram = toNullableNumber(form.vramGb);
 
     if (!form.systemRequirementTypeId) {
       setError('Requirement type is required.');
@@ -128,6 +141,34 @@ function AddRequirementDialog({
     if (Number.isNaN(ram) || ram < 1) {
       setError('RAM must be at least 1 GB.');
       return false;
+    }
+    if (storage > 2147483647 || ram > 2147483647) {
+      setError('Storage and RAM values are too large.');
+      return false;
+    }
+    if (vram !== null && (vram < 0 || vram > 2147483647)) {
+      setError('VRAM value is too large.');
+      return false;
+    }
+    if (cpu !== null) {
+      if (!hasValidScale(form.cpuGhz, 1)) {
+        setError('CPU GHz must have up to 1 decimal place.');
+        return false;
+      }
+      if (cpu < 0 || cpu > 99.9) {
+        setError('CPU GHz must be between 0.0 and 99.9.');
+        return false;
+      }
+    }
+    if (gpu !== null) {
+      if (!hasValidScale(form.gpuTflops, 2)) {
+        setError('GPU TFLOPS must have up to 2 decimal places.');
+        return false;
+      }
+      if (gpu < 0 || gpu > 99.99) {
+        setError('GPU TFLOPS must be between 0.0 and 99.99.');
+        return false;
+      }
     }
     setError(null);
     return true;
@@ -162,7 +203,7 @@ function AddRequirementDialog({
       onClose();
     } catch (submitError) {
       log.error('Failed to save system requirement:', submitError);
-      setError(submitError.message || 'Failed to save system requirement.');
+      setError(getApiErrorMessage(submitError, 'Failed to save system requirement.'));
     } finally {
       setSubmitting(false);
     }
@@ -196,7 +237,7 @@ function AddRequirementDialog({
             type="number"
             value={form.storageGb}
             onChange={handleFieldChange('storageGb')}
-            slotProps={{ htmlInput: { min: 1 } }}
+            slotProps={{ htmlInput: { min: 1, max: 2147483647 } }}
             required
             fullWidth
           />
@@ -206,7 +247,7 @@ function AddRequirementDialog({
             type="number"
             value={form.ramGb}
             onChange={handleFieldChange('ramGb')}
-            slotProps={{ htmlInput: { min: 1 } }}
+            slotProps={{ htmlInput: { min: 1, max: 2147483647 } }}
             required
             fullWidth
           />
@@ -216,7 +257,7 @@ function AddRequirementDialog({
             type="number"
             value={form.cpuGhz}
             onChange={handleFieldChange('cpuGhz')}
-            slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
+            slotProps={{ htmlInput: { min: 0, max: 99.9, step: 0.1 } }}
             fullWidth
           />
 
@@ -225,7 +266,7 @@ function AddRequirementDialog({
             type="number"
             value={form.gpuTflops}
             onChange={handleFieldChange('gpuTflops')}
-            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
+            slotProps={{ htmlInput: { min: 0, max: 99.99, step: 0.01 } }}
             fullWidth
           />
 
@@ -234,7 +275,7 @@ function AddRequirementDialog({
             type="number"
             value={form.vramGb}
             onChange={handleFieldChange('vramGb')}
-            slotProps={{ htmlInput: { min: 0 } }}
+            slotProps={{ htmlInput: { min: 0, max: 2147483647 } }}
             fullWidth
           />
         </Stack>

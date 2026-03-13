@@ -31,6 +31,7 @@ import GenreService from '../../services/GenreService';
 import log from '../../services/Logger';
 import MediaOutletService from '../../services/MediaOutletService';
 import ProductionCompanyService from '../../services/ProductionCompanyService';
+import { getApiErrorMessage } from '../../utils/apiError';
 import { fetchAllPageContent } from '../../utils/fetchAllPageContent';
 
 const ENTITY_TYPES = Object.freeze({
@@ -306,7 +307,7 @@ function ReferenceManagerDialog({
       }
     } catch (submitError) {
       log.error('Failed to submit reference form:', submitError);
-      setError(submitError.message || 'Failed to save record.');
+      setError(getApiErrorMessage(submitError, 'Failed to save record.'));
     } finally {
       setSubmitting(false);
     }
@@ -340,7 +341,7 @@ function ReferenceManagerDialog({
       }
     } catch (deleteError) {
       log.error('Failed to delete reference row:', deleteError);
-      setError(deleteError.message || 'Failed to delete record.');
+      setError(getApiErrorMessage(deleteError, 'Failed to delete record.'));
     } finally {
       setSubmitting(false);
     }

@@ -8,12 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { firstValueFrom } from 'rxjs';
-import { ApiError } from '../../core/http/api-error';
 import { MediaOutlet } from '../../core/models/media-outlet';
 import { Review } from '../../core/models/review';
 import { MediaOutletService } from '../../core/services/media-outlet.service';
 import { ReviewService } from '../../core/services/review.service';
 import { fetchAllPageContent } from '../../core/utils/fetch-all-page-content';
+import { getApiErrorMessage } from '../../core/utils/validation-error';
 import { ReferenceManagerDialogComponent } from '../reference-manager-dialog/reference-manager-dialog.component';
 
 export interface ReviewDialogData {
@@ -78,8 +78,7 @@ export class ReviewDialogComponent implements OnInit {
         { sortBy: 'name', sortDirection: 'ASC' as const }
       );
     } catch (error) {
-      const apiError = error as ApiError;
-      this.error = apiError?.message || 'Failed to load media outlets.';
+      this.error = getApiErrorMessage(error, 'Failed to load media outlets.');
     }
   }
 
@@ -121,8 +120,7 @@ export class ReviewDialogComponent implements OnInit {
 
       this.dialogRef.close({ changed: true });
     } catch (error) {
-      const apiError = error as ApiError;
-      this.error = apiError?.message || 'Failed to save review.';
+      this.error = getApiErrorMessage(error, 'Failed to save review.');
     } finally {
       this.submitting = false;
     }

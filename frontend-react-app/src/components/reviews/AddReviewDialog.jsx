@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react';
 import MediaOutletService from '../../services/MediaOutletService';
 import log from '../../services/Logger';
 import ReviewService from '../../services/ReviewService';
+import { getApiErrorMessage } from '../../utils/apiError';
 import { fetchAllPageContent } from '../../utils/fetchAllPageContent';
 import ReferenceManagerDialog from '../reference/ReferenceManagerDialog';
 
@@ -150,7 +151,7 @@ function AddReviewDialog({
       onClose();
     } catch (submitError) {
       log.error('Failed to save review:', submitError);
-      setError(submitError.message || 'Failed to save review.');
+      setError(getApiErrorMessage(submitError, 'Failed to save review.'));
     } finally {
       setSubmitting(false);
     }

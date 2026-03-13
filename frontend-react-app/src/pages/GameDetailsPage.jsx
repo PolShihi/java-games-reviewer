@@ -30,6 +30,7 @@ import GameService from '../services/GameService';
 import log from '../services/Logger';
 import ReviewService from '../services/ReviewService';
 import SystemRequirementService from '../services/SystemRequirementService';
+import { getApiErrorMessage } from '../utils/apiError';
 
 function GameDetailsPage() {
   const { id } = useParams();
@@ -58,7 +59,7 @@ function GameDetailsPage() {
       setError(null);
     } catch (loadError) {
       log.error('Failed to load game details:', loadError);
-      setError(loadError.message || 'Failed to load game details.');
+      setError(getApiErrorMessage(loadError, 'Failed to load game details.'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,7 @@ function GameDetailsPage() {
       navigate('/');
     } catch (deleteError) {
       log.error('Failed to delete game:', deleteError);
-      setError(deleteError.message || 'Failed to delete game.');
+      setError(getApiErrorMessage(deleteError, 'Failed to delete game.'));
     } finally {
       setDeleting(false);
     }
@@ -116,7 +117,7 @@ function GameDetailsPage() {
       await loadGame();
     } catch (deleteError) {
       log.error('Failed to delete system requirement:', deleteError);
-      setError(deleteError.message || 'Failed to delete system requirement.');
+      setError(getApiErrorMessage(deleteError, 'Failed to delete system requirement.'));
     }
   };
 
@@ -146,7 +147,7 @@ function GameDetailsPage() {
       await loadGame();
     } catch (deleteError) {
       log.error('Failed to delete review:', deleteError);
-      setError(deleteError.message || 'Failed to delete review.');
+      setError(getApiErrorMessage(deleteError, 'Failed to delete review.'));
     }
   };
 
