@@ -28,7 +28,13 @@ export class LoggerService {
 
     const timestamp = new Date().toLocaleTimeString();
     const prefix = `[${timestamp}] [${level}]`;
+    let method: 'log' | 'warn' | 'error' = 'log';
+    if (level === 'ERROR') {
+      method = 'error';
+    } else if (level === 'WARN') {
+      method = 'warn';
+    }
     // eslint-disable-next-line no-console
-    console[level === 'ERROR' ? 'error' : level === 'WARN' ? 'warn' : 'log'](prefix, ...messages);
+    console[method](prefix, ...messages);
   }
 }

@@ -123,13 +123,7 @@ function AddRequirementDialog({
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  const validate = () => {
-    const storage = Number(form.storageGb);
-    const ram = Number(form.ramGb);
-    const cpu = toNullableNumber(form.cpuGhz);
-    const gpu = toNullableNumber(form.gpuTflops);
-    const vram = toNullableNumber(form.vramGb);
-
+  const validateRequired = (storage, ram) => {
     if (!form.systemRequirementTypeId) {
       setError('Requirement type is required.');
       return false;
@@ -146,30 +140,67 @@ function AddRequirementDialog({
       setError('Storage and RAM values are too large.');
       return false;
     }
+    return true;
+  };
+
+  const validateVram = (vram) => {
     if (vram !== null && (vram < 0 || vram > 2147483647)) {
       setError('VRAM value is too large.');
       return false;
     }
-    if (cpu !== null) {
-      if (!hasValidScale(form.cpuGhz, 1)) {
-        setError('CPU GHz must have up to 1 decimal place.');
-        return false;
-      }
-      if (cpu < 0 || cpu > 99.9) {
-        setError('CPU GHz must be between 0.0 and 99.9.');
-        return false;
-      }
+    return true;
+  };
+
+  const validateCpu = (cpu) => {
+    if (cpu === null) {
+      return true;
     }
-    if (gpu !== null) {
-      if (!hasValidScale(form.gpuTflops, 2)) {
-        setError('GPU TFLOPS must have up to 2 decimal places.');
-        return false;
-      }
-      if (gpu < 0 || gpu > 99.99) {
-        setError('GPU TFLOPS must be between 0.0 and 99.99.');
-        return false;
-      }
+    if (!hasValidScale(form.cpuGhz, 1)) {
+      setError('CPU GHz must have up to 1 decimal place.');
+      return false;
     }
+    if (cpu < 0 || cpu > 99.9) {
+      setError('CPU GHz must be between 0.0 and 99.9.');
+      return false;
+    }
+    return true;
+  };
+
+  const validateGpu = (gpu) => {
+    if (gpu === null) {
+      return true;
+    }
+    if (!hasValidScale(form.gpuTflops, 2)) {
+      setError('GPU TFLOPS must have up to 2 decimal places.');
+      return false;
+    }
+    if (gpu < 0 || gpu > 99.99) {
+      setError('GPU TFLOPS must be between 0.0 and 99.99.');
+      return false;
+    }
+    return true;
+  };
+
+  const validate = () => {
+    const storage = Number(form.storageGb);
+    const ram = Number(form.ramGb);
+    const cpu = toNullableNumber(form.cpuGhz);
+    const gpu = toNullableNumber(form.gpuTflops);
+    const vram = toNullableNumber(form.vramGb);
+
+    if (!validateRequired(storage, ram)) {
+      return false;
+    }
+    if (!validateVram(vram)) {
+      return false;
+    }
+    if (!validateCpu(cpu)) {
+      return false;
+    }
+    if (!validateGpu(gpu)) {
+      return false;
+    }
+
     setError(null);
     return true;
   };
@@ -192,6 +223,9 @@ function AddRequirementDialog({
       };
 
       if (isEditMode) {
+        if (!initialRequirement?.id) {
+          throw new Error('System requirement id is required for update.');
+        }
         await SystemRequirementService.update(initialRequirement.id, payload);
       } else {
         await SystemRequirementService.create(payload);
