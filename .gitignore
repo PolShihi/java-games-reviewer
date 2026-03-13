@@ -13,6 +13,7 @@ buildNumber.properties
 
 *.log
 application-local.properties
+.env.secrets
 
 src/main/resources/application.properties
 

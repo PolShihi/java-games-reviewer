@@ -30,7 +30,7 @@ spring:
     time-zone: UTC
 
 server:
-  port: 8080
+  port: 8088
   error:
     include-message: always
     include-binding-errors: always
@@ -44,6 +44,7 @@ logging:
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.boot.model: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
