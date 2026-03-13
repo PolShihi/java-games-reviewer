@@ -186,7 +186,7 @@ export class GameFormPageComponent implements OnInit {
 
   getFieldError(fieldName: string): string | null {
     const control = this.form.get(fieldName);
-    if (!control || !control.touched || !control.errors) {
+    if (!control?.touched || !control?.errors) {
       return null;
     }
 

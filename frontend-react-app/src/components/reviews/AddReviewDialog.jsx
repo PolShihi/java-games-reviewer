@@ -139,6 +139,9 @@ function AddReviewDialog({
       };
 
       if (isEditMode) {
+        if (!initialReview?.id) {
+          throw new Error('Review id is required for update.');
+        }
         await ReviewService.update(initialReview.id, payload);
       } else {
         await ReviewService.create(payload);

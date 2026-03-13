@@ -88,7 +88,7 @@ export class GameDetailsPageComponent implements OnInit {
       return;
     }
 
-    const confirmed = window.confirm('Delete this game? This action cannot be undone.');
+    const confirmed = globalThis.confirm('Delete this game? This action cannot be undone.');
     if (!confirmed) {
       return;
     }
@@ -141,7 +141,7 @@ export class GameDetailsPageComponent implements OnInit {
   }
 
   async deleteRequirement(requirementId: number) {
-    const confirmed = window.confirm('Delete this system requirement?');
+    const confirmed = globalThis.confirm('Delete this system requirement?');
     if (!confirmed) {
       return;
     }
@@ -192,7 +192,7 @@ export class GameDetailsPageComponent implements OnInit {
   }
 
   async deleteReview(reviewId: number) {
-    const confirmed = window.confirm('Delete this review?');
+    const confirmed = globalThis.confirm('Delete this review?');
     if (!confirmed) {
       return;
     }

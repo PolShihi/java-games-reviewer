@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, Inject, OnInit, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,6 +26,8 @@ export type ReferenceEntityType = 'genres' | 'production-companies' | 'media-out
 export interface ReferenceManagerDialogData {
   entityType: ReferenceEntityType;
 }
+
+type ReferenceRow = Genre | ProductionCompany | MediaOutlet;
 
 @Component({
   selector: 'app-reference-manager-dialog',
@@ -57,7 +58,7 @@ export class ReferenceManagerDialogComponent implements OnInit {
 
   readonly entityType: ReferenceEntityType;
 
-  rows: Array<Genre | ProductionCompany | MediaOutlet> = [];
+  rows: ReferenceRow[] = [];
   companyTypes: CompanyType[] = [];
   loading = false;
   submitting = false;
@@ -128,7 +129,7 @@ export class ReferenceManagerDialogComponent implements OnInit {
 
     return this.rows.filter((row) => {
       const name = row.name?.toLowerCase?.() || '';
-      const website = (row as MediaOutlet | ProductionCompany).websiteUrl?.toLowerCase?.() || '';
+      const website = (row as ReferenceRow).websiteUrl?.toLowerCase?.() || '';
       const ceo = (row as ProductionCompany).ceo?.toLowerCase?.() || '';
       return name.includes(query) || website.includes(query) || ceo.includes(query);
     });
@@ -189,7 +190,7 @@ export class ReferenceManagerDialogComponent implements OnInit {
     });
   }
 
-  editRow(row: Genre | ProductionCompany | MediaOutlet) {
+  editRow(row: ReferenceRow) {
     this.editingId = row.id ?? null;
 
     if (this.entityType === 'genres') {
@@ -302,8 +303,8 @@ export class ReferenceManagerDialogComponent implements OnInit {
     }
   }
 
-  async deleteRow(row: Genre | ProductionCompany | MediaOutlet) {
-    const confirmed = window.confirm(`Delete "${row.name}"?`);
+  async deleteRow(row: ReferenceRow) {
+    const confirmed = globalThis.confirm(`Delete "${row.name}"?`);
     if (!confirmed || !row.id) {
       return;
     }
