@@ -2,6 +2,8 @@
 
 https://sonarcloud.io/project/overview?id=PolShihi_java-games-reviewer
 
+Для запуска docker контейнеров, переименовать файл .env.secrets.example в .env.secrets со своими значениями пароля, если в логах будет ошибка `/docker-entrypoint.d/50-envsubst.sh: not found`, то сохранить надо сохранить соответствующие скрипты в LF нотации, а не CRLF.
+
 | Цель (Задача) | План (час) | Факт (час) |
 | :--- | :--- | :--- |
 | **Проектирование базы данных** | | |
@@ -58,4 +60,4 @@ https://sonarcloud.io/project/overview?id=PolShihi_java-games-reviewer
 | **Итого** | **16.4** | **14.92** |
 ||||
 | **Развертывание Docker контейнеров** | | |
-| Создание dockerfile-ов для Backend, Angular Frontend, React Frontend, создание docker-compose файла и вспомогательных скриптов | 3 |  |
+| Создание dockerfile-ов для Backend, Angular Frontend, React Frontend, создание docker-compose файла и вспомогательных скриптов | 3 | 3.7 |
