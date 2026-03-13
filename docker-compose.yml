@@ -32,7 +32,6 @@ services:
     environment:
       SERVER_PORT: ${BACKEND_PORT}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${BACKEND_PORT}:8088"
 
