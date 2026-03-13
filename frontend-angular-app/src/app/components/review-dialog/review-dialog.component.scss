@@ -11,12 +11,19 @@
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .form-grid .full {
   grid-column: span 2;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 12px;
 }
 
 .error-banner {
@@ -29,5 +36,9 @@
 @media (max-width: 900px) {
   .form-grid .full {
     grid-column: span 1;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
   }
 }

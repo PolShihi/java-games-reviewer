@@ -2,6 +2,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-top: 16px;
+}
+
+.dialog-spacer {
+  height: 12px;
 }
 
 .form-card {

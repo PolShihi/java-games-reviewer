@@ -23,9 +23,11 @@
       <mat-form-field appearance="outline" class="full">
         <mat-label>Genres</mat-label>
         <mat-select multiple [(ngModel)]="filters.genreIds">
-          <mat-option *ngFor="let genre of genres" [value]="genre.id">
-            {{ genre.name }}
-          </mat-option>
+          @for (genre of genres; track genre.id) {
+            <mat-option [value]="genre.id">
+              {{ genre.name }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
 
@@ -33,9 +35,11 @@
         <mat-label>Developer</mat-label>
         <mat-select [(ngModel)]="filters.developerId">
           <mat-option value="">All</mat-option>
-          <mat-option *ngFor="let company of companies" [value]="company.id">
-            {{ company.name }}
-          </mat-option>
+          @for (company of companies; track company.id) {
+            <mat-option [value]="company.id">
+              {{ company.name }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
 
@@ -43,9 +47,11 @@
         <mat-label>Publisher</mat-label>
         <mat-select [(ngModel)]="filters.publisherId">
           <mat-option value="">All</mat-option>
-          <mat-option *ngFor="let company of companies" [value]="company.id">
-            {{ company.name }}
-          </mat-option>
+          @for (company of companies; track company.id) {
+            <mat-option [value]="company.id">
+              {{ company.name }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
 
@@ -66,26 +72,33 @@
     </div>
   </mat-card>
 
-  <div *ngIf="loading && games.length === 0" class="state state-loading">
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  </div>
-
-  <mat-card *ngIf="error" class="state state-error">
-    <div class="state-row">
-      <mat-icon color="warn">error_outline</mat-icon>
-      <span>{{ error }}</span>
+  @if (loading && games.length === 0) {
+    <div class="state state-loading">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
     </div>
-    <button mat-flat-button color="primary" (click)="fetchGames()">Retry</button>
-  </mat-card>
+  }
 
-  <mat-card *ngIf="!loading && !error && games.length === 0" class="state state-empty">
-    <div class="state-row">
-      <mat-icon>info</mat-icon>
-      <span>No games found.</span>
-    </div>
-  </mat-card>
+  @if (error) {
+    <mat-card class="state state-error">
+      <div class="state-row">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+      <button mat-flat-button color="primary" (click)="fetchGames()">Retry</button>
+    </mat-card>
+  }
 
-  <mat-card *ngIf="!error && games.length > 0" class="table-card">
+  @if (!loading && !error && games.length === 0) {
+    <mat-card class="state state-empty">
+      <div class="state-row">
+        <mat-icon>info</mat-icon>
+        <span>No games found.</span>
+      </div>
+    </mat-card>
+  }
+
+  @if (!error && games.length > 0) {
+  <mat-card class="table-card">
     <table mat-table [dataSource]="games" matSort (matSortChange)="onSortChange($event)">
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header="id">ID</th>
@@ -105,12 +118,17 @@
       <ng-container matColumnDef="genres">
         <th mat-header-cell *matHeaderCellDef>Genres</th>
         <td mat-cell *matCellDef="let game">
-          <mat-chip-set *ngIf="game.genreNames?.length; else noGenres" class="chip-set">
-            <mat-chip *ngFor="let name of game.genreNames" color="primary" variant="outlined">
-              {{ name }}
-            </mat-chip>
-          </mat-chip-set>
-          <ng-template #noGenres>-</ng-template>
+          @if (game.genreNames?.length) {
+            <mat-chip-set class="chip-set">
+              @for (name of game.genreNames; track name) {
+                <mat-chip color="primary" variant="outlined">
+                  {{ name }}
+                </mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            <span>-</span>
+          }
         </td>
       </ng-container>
 
@@ -127,10 +145,11 @@
       <ng-container matColumnDef="averageRating">
         <th mat-header-cell *matHeaderCellDef mat-sort-header="averageRating">Rating</th>
         <td mat-cell *matCellDef="let game">
-          <span *ngIf="game.averageRating !== null && game.averageRating !== undefined; else noRating">
-            {{ game.averageRating | number: '1.0-0' }}
-          </span>
-          <ng-template #noRating> N/A </ng-template>
+          @if (game.averageRating !== null && game.averageRating !== undefined) {
+            <span>{{ game.averageRating | number: '1.0-0' }}</span>
+          } @else {
+            <span>N/A</span>
+          }
         </td>
       </ng-container>
 
@@ -160,4 +179,5 @@
       (page)="onPageChange($event)"
     ></mat-paginator>
   </mat-card>
+  }
 </section>
