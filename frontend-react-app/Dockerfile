@@ -13,9 +13,9 @@ RUN npm run build
 FROM nginxinc/nginx-unprivileged:alpine
 USER root
 RUN apk add --no-cache gettext
-COPY --chown=101:101 --chmod=0444 nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build --chown=101:101 --chmod=0555 /app/dist /usr/share/nginx/html
-COPY --chown=101:101 --chmod=0555 docker-entrypoint.d/50-envsubst.sh /docker-entrypoint.d/50-envsubst.sh
+COPY --chown=root:root --chmod=0444 nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build --chown=root:root --chmod=0555 /app/dist /usr/share/nginx/html
+COPY --chown=root:root --chmod=0555 docker-entrypoint.d/50-envsubst.sh /docker-entrypoint.d/50-envsubst.sh
 
 USER 101
 

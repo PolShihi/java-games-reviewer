@@ -9,10 +9,9 @@ RUN mvn -DskipTests package
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar /app/app.jar
+COPY --from=build --chown=root:root --chmod=0444 /app/target/*.jar /app/app.jar
 
-RUN groupadd -r spring && useradd -r -g spring spring \
-  && chown -R spring:spring /app
+RUN groupadd -r spring && useradd -r -g spring spring
 
 USER spring:spring
 
