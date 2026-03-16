@@ -7,4 +7,4 @@ ENABLE_LOGS="${ENABLE_LOGS:-false}"
 
 export API_BASE_URL APP_NAME ENABLE_LOGS
 
-envsubst < /usr/share/nginx/html/env.template.js > /usr/share/nginx/html/env.js
+envsubst < /usr/share/nginx/html/env.template.js > /tmp/env.js
