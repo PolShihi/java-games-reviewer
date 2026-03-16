@@ -1,4 +1,4 @@
-window.__APP_CONFIG__ = {
+globalThis.__APP_CONFIG__ = {
   API_BASE_URL: "${API_BASE_URL}",
   APP_NAME: "${APP_NAME}",
   ENABLE_LOGS: "${ENABLE_LOGS}"

@@ -10,11 +10,14 @@ COPY index.html vite.config.js ./
 
 RUN npm run build
 
-FROM nginx:1.27-alpine
+FROM nginxinc/nginx-unprivileged:alpine
+USER root
 RUN apk add --no-cache gettext
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY docker-entrypoint.d/50-envsubst.sh /docker-entrypoint.d/50-envsubst.sh
+COPY --from=build --chown=101:101 /app/dist /usr/share/nginx/html
+COPY --chown=101:101 docker-entrypoint.d/50-envsubst.sh /docker-entrypoint.d/50-envsubst.sh
 RUN chmod +x /docker-entrypoint.d/50-envsubst.sh
 
-EXPOSE 80
+USER 101
+
+EXPOSE 8080

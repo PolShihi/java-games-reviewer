@@ -11,6 +11,11 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar /app/app.jar
 
+RUN groupadd -r spring && useradd -r -g spring spring \
+  && chown -R spring:spring /app
+
+USER spring:spring
+
 EXPOSE 8088
 
 ENV SPRING_PROFILES_ACTIVE=prod
